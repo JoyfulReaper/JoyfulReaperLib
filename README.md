@@ -1,2 +1,2 @@
 # JoyfulReaperLib
-Some things I have found helpful :D
+A library of code that I have found helpful!

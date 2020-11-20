@@ -1,0 +1,15 @@
+Version 0.0.4 - 11/19/20
+	- Add Luhn Algorithm
+	- Add ConsoleHelper Method GetValidInt()
+	- Add Fibonacci Sequence calculator
+	- Add Find GCF/LCM of an int array to FractionHelper
+	- Add Caesar Cipher
+
+Version 0.0.3 - 11/17/20
+	- Updated CurrencyUnit
+
+Version 0.0.2 - 11/16/20
+	- Added CurrencyUnit
+
+Version 0.0.1 - 11/15/20
+	- Added FractionModel
