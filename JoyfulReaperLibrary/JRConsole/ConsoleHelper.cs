@@ -70,6 +70,7 @@ namespace JoyfulReaperLib.JRConsole
         /// </summary>
         /// <param name="colors">A list of the colors to use</param>
         /// <param name="message">The message to use</param>
+        /// <param name="random">True, select random color from the list, false select color sin sequence</param>
         public static void MulticolorWriteLine(List<ConsoleColor> colors, string message, bool random = false)
         {
             MulticolorWrite(colors, $"{message}{System.Environment.NewLine}", random);
@@ -80,6 +81,7 @@ namespace JoyfulReaperLib.JRConsole
         /// </summary>
         /// <param name="colors">A list of the colors to use</param>
         /// <param name="message">The message to use</param>
+        /// <param name="random">True, select random color from the list, false select color sin sequence</param>
         public static void MulticolorWrite(List<ConsoleColor> colors, string message, bool random = false)
         {
             int colorIndex = -1;
@@ -92,13 +94,13 @@ namespace JoyfulReaperLib.JRConsole
                 }
                 else
                 {
-                    if (colorIndex == colors.Count - 1)
-                    {
-                        colorIndex = 0;
-                    }
-                    else
+                    if (!Char.IsWhiteSpace(message[i]))
                     {
                         colorIndex++;
+                        if (colorIndex >= colors.Count)
+                        {
+                            colorIndex = 0;
+                        }
                     }
                 }
 
