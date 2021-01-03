@@ -23,12 +23,14 @@ SOFTWARE.
 */
 
 using System;
+using System.Collections.Generic;
 
 namespace JoyfulReaperLib.JRConsole
 {
     public static class ConsoleHelper
     {
         public static ConsoleColor DefaultColor { get; set; } = Console.ForegroundColor;
+        public static Random rand = new Random();
 
         /// <summary>
         /// Output a message to the console in color.
@@ -61,6 +63,49 @@ namespace JoyfulReaperLib.JRConsole
         public static void ColorWriteLine(ConsoleColor color, string message)
         {
             ColorWrite(color, $"{message}{ System.Environment.NewLine }");
+        }
+
+        /// <summary>
+        /// Write out a message with each letter in alternating colors
+        /// </summary>
+        /// <param name="colors">A list of the colors to use</param>
+        /// <param name="message">The message to use</param>
+        /// <param name="random">True, select random color from the list, false select color sin sequence</param>
+        public static void MulticolorWriteLine(List<ConsoleColor> colors, string message, bool random = false)
+        {
+            MulticolorWrite(colors, $"{message}{System.Environment.NewLine}", random);
+        }
+
+        /// <summary>
+        /// Write out a message with each letter in alternating colors
+        /// </summary>
+        /// <param name="colors">A list of the colors to use</param>
+        /// <param name="message">The message to use</param>
+        /// <param name="random">True, select random color from the list, false select color sin sequence</param>
+        public static void MulticolorWrite(List<ConsoleColor> colors, string message, bool random = false)
+        {
+            int colorIndex = -1;
+
+            for (int i = 0; i < message.Length; i++)
+            {
+                if (random)
+                {
+                    colorIndex = rand.Next(0, colors.Count);
+                }
+                else
+                {
+                    if (!Char.IsWhiteSpace(message[i]))
+                    {
+                        colorIndex++;
+                        if (colorIndex >= colors.Count)
+                        {
+                            colorIndex = 0;
+                        }
+                    }
+                }
+
+                ColorWrite(colors[colorIndex], message[i].ToString());
+            }
         }
 
         /// <summary>
