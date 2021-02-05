@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.30709.132
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JoyfulReaperLib", "JoyfulReaperLibrary\JoyfulReaperLib.csproj", "{996E32D8-0CCF-4794-A962-52943BF0033E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JoyfulReaperLibTests", "JoyfulReaperLibTests\JoyfulReaperLibTests.csproj", "{95BDE67A-4DDA-4A85-903E-C83D26800312}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JoyfulReaperLibTests", "JoyfulReaperLibTests\JoyfulReaperLibTests.csproj", "{95BDE67A-4DDA-4A85-903E-C83D26800312}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
