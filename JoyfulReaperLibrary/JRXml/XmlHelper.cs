@@ -15,5 +15,15 @@ namespace JoyfulReaperLib.JRXml
 
             return output;
         }
+
+        public static void SerializeXml<T>(T item)
+        {
+            XmlSerializer xs = new XmlSerializer(typeof(T));
+
+            using (Stream s = File.Create(@"rss2.xml"))
+            {
+                xs.Serialize(s, item);
+            }
+        }
     }
 }
