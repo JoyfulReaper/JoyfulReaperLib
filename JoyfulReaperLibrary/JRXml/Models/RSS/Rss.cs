@@ -23,6 +23,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+// TODO: Correctly support tags like: cloud, image, source, enclosure, probably others
+// Docs: https://cyber.harvard.edu/rss/rss.html
 
 using System.Xml.Serialization;
 
