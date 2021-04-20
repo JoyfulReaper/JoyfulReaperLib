@@ -23,32 +23,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using System.IO;
-using System.Xml.Serialization;
+using System;
 
-namespace JoyfulReaperLib.JRXml
+namespace JoyfulReaperLib.JREnums
 {
-    public static class XmlHelper
+
+    public static class EnumHelper
     {
-        public static T DeserializeXml<T>(string xmlFile)
+        private static readonly Random _random = new Random();
+
+        public static T RandomEnumValue<T>()
         {
-            XmlSerializer xs = new XmlSerializer(typeof(T));
-            FileStream fs = new FileStream(xmlFile, FileMode.Open);
-
-            var output = (T)xs.Deserialize(fs);
-            fs.Close();
-
-            return output;
+            var values = Enum.GetValues(typeof(T));
+            return (T)values.GetValue(_random.Next(values.Length));
         }
 
-        public static void SerializeXml<T>(T item)
+        public static bool EnumValueIsValid<T>(T value)
         {
-            XmlSerializer xs = new XmlSerializer(typeof(T));
-
-            using (Stream s = File.Create(@"rss2.xml"))
-            {
-                xs.Serialize(s, item);
-            }
+            return Enum.IsDefined(typeof(T), value);
         }
     }
 }
