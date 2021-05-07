@@ -60,7 +60,7 @@ namespace JoyfulReaperLib.JREnums
         {
             return (
                 Enum.GetValues(typeof(T)).Cast<int>().Min(), 
-                Enum.GetValues(typeof(T)).Cast<int>().Min()
+                Enum.GetValues(typeof(T)).Cast<int>().Max()
             );
         }
     }
