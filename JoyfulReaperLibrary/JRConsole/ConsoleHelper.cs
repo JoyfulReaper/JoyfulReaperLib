@@ -30,7 +30,7 @@ namespace JoyfulReaperLib.JRConsole
     public static class ConsoleHelper
     {
         public static ConsoleColor DefaultColor { get; set; } = Console.ForegroundColor;
-        public static Random rand = new Random();
+        private static readonly Random _random = new Random();
 
         /// <summary>
         /// Output a message to the console in color.
@@ -90,7 +90,7 @@ namespace JoyfulReaperLib.JRConsole
             {
                 if (random)
                 {
-                    colorIndex = rand.Next(0, colors.Count);
+                    colorIndex = _random.Next(0, colors.Count);
                 }
                 else
                 {

@@ -24,17 +24,16 @@ SOFTWARE.
 */
 
 using System;
-using System.Collections.Generic;
 
-namespace JoyfulReaperLib.JRLists
+namespace JoyfulReaperLib.JRArray
 {
-    public static class ListExtensions
+    public static class ArrayExtensions
     {
         private static readonly Random _random = new Random();
 
-        public static T RandomItem<T>(this List<T> list)
+        public static T RandomItem<T>(this T[] array)
         {
-            return list[_random.Next(list.Count)];
+            return array[_random.Next(array.Length)];
         }
     }
 }
