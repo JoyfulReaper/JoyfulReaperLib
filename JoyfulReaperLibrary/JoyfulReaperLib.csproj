@@ -2,6 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Copyright>Copyright 2022 Kyle Givler</Copyright>
+    <PackageProjectUrl>https://github.com/JoyfulReaper</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>

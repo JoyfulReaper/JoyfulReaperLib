@@ -25,6 +25,7 @@ SOFTWARE.
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace JoyfulReaperLib.JRCurrency
 {
@@ -39,14 +40,17 @@ namespace JoyfulReaperLib.JRCurrency
         public static List<CurrencyUnit> CalculateChange(decimal totalChange, List<CurrencyUnit> currencyUnits)
         {
             var change = new List<CurrencyUnit>();
-            foreach (var currencyUnit in currencyUnits)
+            foreach (var currencyUnit in currencyUnits.OrderByDescending(x => x.Value))
             {
                 int count;
 
                 count = (int)(totalChange / currencyUnit.Value);
                 totalChange %= currencyUnit.Value;
 
-                change.Add(new CurrencyUnit(currencyUnit.Value, currencyUnit.Name, currencyUnit.PluralName, count));
+                if (count > 0)
+                {
+                    change.Add(new CurrencyUnit(currencyUnit.Value, currencyUnit.Name, currencyUnit.PluralName, count));
+                }
                 currencyUnit.Quantity = count;
             }
 
