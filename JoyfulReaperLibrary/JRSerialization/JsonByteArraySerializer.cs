@@ -9,26 +9,28 @@ namespace JoyfulReaperLib.JRSerialization;
 
 public class JsonByteArraySerializer
 {
+    private static readonly JsonSerializerOptions _jsonSerializerOptions = GetJsonSerializerOptions();
+
     /// <summary>
     /// Convert an object to a Byte Array.
     /// </summary>
-    public static byte[] ObjectToByteArray(object objData)
+    public static byte[]? ObjectToByteArray(object objData)
     {
         if (objData == null)
             return default;
 
-        return Encoding.UTF8.GetBytes(JsonSerializer.Serialize(objData, GetJsonSerializerOptions()));
+        return Encoding.UTF8.GetBytes(JsonSerializer.Serialize(objData, _jsonSerializerOptions));
     }
 
     /// <summary>
     /// Convert a byte array to an Object of T.
     /// </summary>
-    public static T ByteArrayToObject<T>(byte[] byteArray)
+    public static T? ByteArrayToObject<T>(byte[] byteArray)
     {
         if (byteArray == null || !byteArray.Any())
             return default;
 
-        return JsonSerializer.Deserialize<T>(byteArray, GetJsonSerializerOptions());
+        return JsonSerializer.Deserialize<T>(byteArray, _jsonSerializerOptions);
     }
 
     private static JsonSerializerOptions GetJsonSerializerOptions()
