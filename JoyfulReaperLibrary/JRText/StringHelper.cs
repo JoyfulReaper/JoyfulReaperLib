@@ -66,11 +66,60 @@ namespace JoyfulReaperLib.JRText
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        public static bool isPalindrome(string input)
+        public static bool IsPalindrome(string input)
         {
             input = input.Replace(" ", string.Empty).ToUpperInvariant();
 
             return input == Reverse(input).ToUpperInvariant();
+        }
+
+        /// <summary>
+        /// Returns the number of vowels in the given string
+        /// </summary>
+        /// <param name="input">The string to analyze</param>
+        /// <param name="consonants">The number of consonants</param>
+        /// <param name="whiteSpace">The number of whitespace characters</param>
+        /// <param name="numbers">The number of numbers</param>
+        /// <param name="unknown">Unknown characters</param>
+        /// <returns></returns>
+        public static int VowelAnalysis(string input, out int consonants, out int whiteSpace, out int numbers, out int unknown)
+        {
+            char[] vowels = { 'a', 'e', 'i', 'o', 'u' };
+
+            int numVowels = 0;
+            consonants = 0;
+            whiteSpace = 0;
+            numbers = 0;
+            unknown = 0;
+
+            foreach (char c in input)
+            {
+                if (Array.IndexOf(vowels, char.ToLower(c)) >= 0)
+                {
+                    numVowels++;
+                }
+                else if (char.IsLetterOrDigit(c))
+                {
+                    if (char.IsLetter(c))
+                    {
+                        consonants++;
+                    }
+                    else if (char.IsDigit(c))
+                    {
+                        numbers++;
+                    }
+                }
+                else if (char.IsWhiteSpace(c))
+                {
+                    whiteSpace++;
+                }
+                else
+                {
+                    unknown++;
+                }
+            }
+
+            return numVowels;
         }
     }
 }
