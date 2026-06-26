@@ -6,14 +6,14 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Copyright>Copyright 2022 Kyle Givler</Copyright>
     <PackageProjectUrl>https://github.com/JoyfulReaper</PackageProjectUrl>
+	<PackageId>JoyfulReaperLib</PackageId>
+	<Version>0.0.1</Version>
+	<Authors>Kyle Givler</Authors>
+	<Description>Shared utilities and data helpers.</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MailKit" Version="4.17.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.9" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="10.0.9" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.9" />
+    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="10.0.9" />
   </ItemGroup>
 
 </Project>
