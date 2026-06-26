@@ -25,101 +25,100 @@ SOFTWARE.
 using System;
 using System.Text;
 
-namespace JoyfulReaperLib.JRText
+namespace JoyfulReaperLib.JRText;
+
+public static class StringHelper
 {
-    public static class StringHelper
+    /// <summary>
+    /// Return null if value is null or whitespace, otherwise return value
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public static string? AssignNullIfEmpty(string value)
     {
-        /// <summary>
-        /// Return null if value is null or whitespace, otherwise return value
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public static string AssignNullIfEmpty(string value)
+        if (String.IsNullOrWhiteSpace(value))
         {
-            if (String.IsNullOrWhiteSpace(value))
+            return null;
+        }
+
+        return value;
+    }
+
+    /// <summary>
+    /// Reverse a string
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
+    public static string Reverse(string input)
+    {
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = input.Length - 1; i >= 0; i--)
+        {
+            sb.Append(input[i]);
+        }
+
+        return sb.ToString();
+    }
+
+    /// <summary>
+    /// Check to see if a string is a palindrome
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
+    public static bool IsPalindrome(string input)
+    {
+        input = input.Replace(" ", string.Empty).ToUpperInvariant();
+
+        return input == Reverse(input).ToUpperInvariant();
+    }
+
+    /// <summary>
+    /// Returns the number of vowels in the given string
+    /// </summary>
+    /// <param name="input">The string to analyze</param>
+    /// <param name="consonants">The number of consonants</param>
+    /// <param name="whiteSpace">The number of whitespace characters</param>
+    /// <param name="numbers">The number of numbers</param>
+    /// <param name="unknown">Unknown characters</param>
+    /// <returns></returns>
+    public static int VowelAnalysis(string input, out int consonants, out int whiteSpace, out int numbers, out int unknown)
+    {
+        char[] vowels = { 'a', 'e', 'i', 'o', 'u' };
+
+        int numVowels = 0;
+        consonants = 0;
+        whiteSpace = 0;
+        numbers = 0;
+        unknown = 0;
+
+        foreach (char c in input)
+        {
+            if (Array.IndexOf(vowels, char.ToLower(c)) >= 0)
             {
-                return null;
+                numVowels++;
             }
-
-            return value;
-        }
-
-        /// <summary>
-        /// Reverse a string
-        /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
-        public static string Reverse(string input)
-        {
-            StringBuilder sb = new StringBuilder();
-
-            for (int i = input.Length - 1; i >= 0; i--)
+            else if (char.IsLetterOrDigit(c))
             {
-                sb.Append(input[i]);
-            }
-
-            return sb.ToString();
-        }
-
-        /// <summary>
-        /// Check to see if a string is a palindrome
-        /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
-        public static bool IsPalindrome(string input)
-        {
-            input = input.Replace(" ", string.Empty).ToUpperInvariant();
-
-            return input == Reverse(input).ToUpperInvariant();
-        }
-
-        /// <summary>
-        /// Returns the number of vowels in the given string
-        /// </summary>
-        /// <param name="input">The string to analyze</param>
-        /// <param name="consonants">The number of consonants</param>
-        /// <param name="whiteSpace">The number of whitespace characters</param>
-        /// <param name="numbers">The number of numbers</param>
-        /// <param name="unknown">Unknown characters</param>
-        /// <returns></returns>
-        public static int VowelAnalysis(string input, out int consonants, out int whiteSpace, out int numbers, out int unknown)
-        {
-            char[] vowels = { 'a', 'e', 'i', 'o', 'u' };
-
-            int numVowels = 0;
-            consonants = 0;
-            whiteSpace = 0;
-            numbers = 0;
-            unknown = 0;
-
-            foreach (char c in input)
-            {
-                if (Array.IndexOf(vowels, char.ToLower(c)) >= 0)
+                if (char.IsLetter(c))
                 {
-                    numVowels++;
+                    consonants++;
                 }
-                else if (char.IsLetterOrDigit(c))
+                else if (char.IsDigit(c))
                 {
-                    if (char.IsLetter(c))
-                    {
-                        consonants++;
-                    }
-                    else if (char.IsDigit(c))
-                    {
-                        numbers++;
-                    }
-                }
-                else if (char.IsWhiteSpace(c))
-                {
-                    whiteSpace++;
-                }
-                else
-                {
-                    unknown++;
+                    numbers++;
                 }
             }
-
-            return numVowels;
+            else if (char.IsWhiteSpace(c))
+            {
+                whiteSpace++;
+            }
+            else
+            {
+                unknown++;
+            }
         }
+
+        return numVowels;
     }
 }
