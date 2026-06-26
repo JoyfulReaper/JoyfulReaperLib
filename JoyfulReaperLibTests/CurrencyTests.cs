@@ -1,25 +1,31 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿/*
+ * JoyfulReaperLibrary
+ * 
+ *  Copyright (c) 2026 Kyle Givler
+ * Licensed under the MIT License.
+ */
+
 using JoyfulReaperLib.JRCurrency;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace JoyfulReaperLibTests
+namespace JoyfulReaperLibTests;
+
+[TestClass]
+public class CurrencyTests
 {
-    [TestClass]
-    public class CurrencyTests
+    [TestMethod]
+    public void TestChange()
     {
-        [TestMethod]
-        public void TestChange()
-        {
-            List<CurrencyUnit> coins = CurrencyHelper.GetUSDCommonCoins();
-            decimal changeDue = 1.69m;
+        List<CurrencyUnit> coins = CurrencyHelper.GetUSDCommonCoins();
+        decimal changeDue = 1.69m;
 
-            var change = CurrencyHelper.CalculateChange(changeDue, coins);
+        var change = CurrencyHelper.CalculateChange(changeDue, coins);
 
-            Assert.AreEqual(6, change.Where(x=> x.Name == "quarter").First().Quantity);
-            Assert.AreEqual(1, change.Where(x => x.Name == "dime").First().Quantity);
-            Assert.AreEqual(1, change.Where(x => x.Name == "nickel").First().Quantity);
-            Assert.AreEqual(4, change.Where(x => x.Name == "penny").First().Quantity);
-        }
+        Assert.AreEqual(6, change.Where(x => x.Name == "quarter").First().Quantity);
+        Assert.AreEqual(1, change.Where(x => x.Name == "dime").First().Quantity);
+        Assert.AreEqual(1, change.Where(x => x.Name == "nickel").First().Quantity);
+        Assert.AreEqual(4, change.Where(x => x.Name == "penny").First().Quantity);
     }
 }

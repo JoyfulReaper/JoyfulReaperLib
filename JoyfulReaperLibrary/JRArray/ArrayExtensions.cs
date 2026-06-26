@@ -25,15 +25,14 @@ SOFTWARE.
 
 using System;
 
-namespace JoyfulReaperLib.JRArray
-{
-    public static class ArrayExtensions
-    {
-        private static readonly Random _random = new Random();
+namespace JoyfulReaperLib.JRArray;
 
-        public static T RandomItem<T>(this T[] array)
-        {
-            return array[_random.Next(array.Length)];
-        }
+public static class ArrayExtensions
+{
+    private static readonly Random _random = new Random();
+
+    public static T RandomItem<T>(this T[] array)
+    {
+        return array[_random.Next(array.Length)];
     }
 }

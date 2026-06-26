@@ -1,5 +1,12 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+/*
+ * JoyfulReaperLibrary
+ * 
+ *  Copyright (c) 2026 Kyle Givler
+ * Licensed under the MIT License.
+ */
+
 using JoyfulReaperLib.JRMath.Fractions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace JoyfulReaperLibTests
 {
@@ -10,8 +17,8 @@ namespace JoyfulReaperLibTests
         public void TestCtor()
         {
             FractionModel f = new FractionModel(1, 2);
-            Assert.AreEqual(f.Numerator, 1);
-            Assert.AreEqual(f.Denominator, 2);
+            Assert.AreEqual(1, f.Numerator);
+            Assert.AreEqual(2, f.Denominator);
         }
     }
 }
