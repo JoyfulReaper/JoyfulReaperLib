@@ -13,7 +13,7 @@ namespace JoyfulReaperLib.JRData;
 
 public class SqliteHelper
 {
-    public static string InitializeSqlite(string dbFileName, string schemaSql)
+    public static string InitializeSqlite(string dbFileName, string? schemaSql)
     {
         var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
         var dataFolder = Path.Combine(baseDirectory, "Data");
@@ -22,12 +22,15 @@ public class SqliteHelper
         var dbPath = Path.Combine(dataFolder, dbFileName);
         var connectionString = $"Data Source={dbPath};Mode=ReadWriteCreate;Cache=Shared;";
 
-        using var connection = new SqliteConnection(connectionString);
-        connection.Open();
+        if (schemaSql is not null)
+        {
+            using var connection = new SqliteConnection(connectionString);
+            connection.Open();
 
-        var command = connection.CreateCommand();
-        command.CommandText = schemaSql;
-        command.ExecuteNonQuery();
+            var command = connection.CreateCommand();
+            command.CommandText = schemaSql;
+            command.ExecuteNonQuery();
+        }
 
         return connectionString;
     }
