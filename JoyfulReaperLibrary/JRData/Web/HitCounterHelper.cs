@@ -22,7 +22,11 @@ public static class HitCountHelper
 
     private static async Task EnsureTableExists(SqliteConnection db)
     {
-        await db.OpenAsync();
+        if (db.State != System.Data.ConnectionState.Open)
+        {
+            await db.OpenAsync();
+        }
+
         using var cmd = db.CreateCommand();
         cmd.CommandText = _visitorsSchema;
         cmd.ExecuteNonQuery();
@@ -31,6 +35,13 @@ public static class HitCountHelper
 
     public async static Task<(long totalHits, long uniqueVisitors)> GetHitCounts(SqliteConnection db)
     {
+        if (db.State != System.Data.ConnectionState.Open)
+        {
+            await db.OpenAsync();
+        }
+
+        await EnsureTableExists(db);
+
         long totalHits = 0;
         long uniqueVisitors = 0;
 
@@ -50,7 +61,11 @@ public static class HitCountHelper
 
     public async static Task<(long totalHits, long uniqueVisitors)> ProcessHitCounts(SqliteConnection db, string ip)
     {
-        await db.OpenAsync();
+        if (db.State != System.Data.ConnectionState.Open)
+        {
+            await db.OpenAsync();
+        }
+
         await EnsureTableExists(db);
 
         // Update the hit count
