@@ -20,26 +20,41 @@ public static class HitCountHelper
                 LastSeen TEXT
             );";
 
-    private static void EnsureTableExists(SqliteConnection connection)
+    private static async Task EnsureTableExists(SqliteConnection db)
     {
-        using var cmd = connection.CreateCommand();
+        await db.OpenAsync();
+        using var cmd = db.CreateCommand();
         cmd.CommandText = _visitorsSchema;
         cmd.ExecuteNonQuery();
     }
 
-    public async static Task<(long totalHits, long uniqueVisitors)> ProcessHitCounts(string connectionString, string ip)
+
+    public async static Task<(long totalHits, long uniqueVisitors)> GetHitCounts(SqliteConnection db)
     {
         long totalHits = 0;
         long uniqueVisitors = 0;
 
-        // SQLite Upsert and Count
-        using var connection = new SqliteConnection(connectionString);
-        await connection.OpenAsync();
+        var statsCmd = db.CreateCommand();
+        statsCmd.CommandText = "SELECT COUNT(IpAddress), SUM(Hits) FROM Visitors;";
+        using var reader = await statsCmd.ExecuteReaderAsync();
 
-        EnsureTableExists(connection);
+        if (await reader.ReadAsync())
+        {
+            uniqueVisitors = reader.IsDBNull(0) ? 0 : reader.GetInt64(0);
+            totalHits = reader.IsDBNull(1) ? 0 : reader.GetInt64(1);
+        }
+
+        return (totalHits, uniqueVisitors);
+    }
+
+
+    public async static Task<(long totalHits, long uniqueVisitors)> ProcessHitCounts(SqliteConnection db, string ip)
+    {
+        await db.OpenAsync();
+        await EnsureTableExists(db);
 
         // Update the hit count
-        var upsertCmd = connection.CreateCommand();
+        var upsertCmd = db.CreateCommand();
         upsertCmd.CommandText = @"
             INSERT INTO Visitors (IpAddress, Hits, LastSeen)
             VALUES ($ip, 1, $date)
@@ -52,16 +67,10 @@ public static class HitCountHelper
         await upsertCmd.ExecuteNonQueryAsync();
 
         // Get Totals
-        var statsCmd = connection.CreateCommand();
+        var statsCmd = db.CreateCommand();
         statsCmd.CommandText = "SELECT COUNT(IpAddress), SUM(Hits) FROM Visitors;";
         using var reader = await statsCmd.ExecuteReaderAsync();
 
-        if (await reader.ReadAsync())
-        {
-            uniqueVisitors = reader.IsDBNull(0) ? 0 : reader.GetInt64(0);
-            totalHits = reader.IsDBNull(1) ? 0 : reader.GetInt64(1);
-        }
-
-        return (totalHits, uniqueVisitors);
+        return await GetHitCounts(db);
     }
 }
