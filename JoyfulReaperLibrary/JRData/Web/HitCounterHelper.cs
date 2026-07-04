@@ -6,6 +6,7 @@
  */
 
 using Microsoft.Data.Sqlite;
+using System.Net;
 using System;
 using System.Threading.Tasks;
 
@@ -67,6 +68,11 @@ public static class HitCountHelper
         }
 
         await EnsureTableExists(db);
+        var visitorKey = NormalizeVisitorKey(ip);
+        if (string.IsNullOrEmpty(visitorKey))
+        {
+            return await GetHitCounts(db);
+        }
 
         // Update the hit count
         var upsertCmd = db.CreateCommand();
@@ -77,15 +83,31 @@ public static class HitCountHelper
                 Hits = Hits + 1,
                 LastSeen = $date;
         ";
-        upsertCmd.Parameters.AddWithValue("$ip", ip);
+        upsertCmd.Parameters.AddWithValue("$ip", visitorKey);
         upsertCmd.Parameters.AddWithValue("$date", DateTime.UtcNow.ToString("o"));
         await upsertCmd.ExecuteNonQueryAsync();
 
-        // Get Totals
-        var statsCmd = db.CreateCommand();
-        statsCmd.CommandText = "SELECT COUNT(IpAddress), SUM(Hits) FROM Visitors;";
-        using var reader = await statsCmd.ExecuteReaderAsync();
-
         return await GetHitCounts(db);
+    }
+
+    private static string? NormalizeVisitorKey(string ip)
+    {
+        if (string.IsNullOrWhiteSpace(ip))
+        {
+            return null;
+        }
+
+        var trimmedIp = ip.Trim();
+        if (!IPAddress.TryParse(trimmedIp, out var parsedIp))
+        {
+            return trimmedIp;
+        }
+
+        if (parsedIp.IsIPv4MappedToIPv6)
+        {
+            parsedIp = parsedIp.MapToIPv4();
+        }
+
+        return parsedIp.ToString();
     }
 }
