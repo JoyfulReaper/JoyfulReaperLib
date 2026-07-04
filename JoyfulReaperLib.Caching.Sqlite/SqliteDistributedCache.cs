@@ -16,6 +16,8 @@ public sealed class SqliteDistributedCache : IDistributedCache
     {
         ArgumentNullException.ThrowIfNull(options);
 
+        SqliteProviderInitializer.Initialize();
+
         _connectionString = ResolveConnectionString(options.Value);
     }
 
