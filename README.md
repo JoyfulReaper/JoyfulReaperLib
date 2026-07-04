@@ -15,6 +15,7 @@ Base package:
 Install:
 
 ```bash
+dotnet add package JoyfulReaperLib
 dotnet add package JoyfulReaperLib.Caching.Sqlite
 dotnet add package JoyfulReaperLib.WebStats.Sqlite
 ```

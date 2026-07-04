@@ -23,17 +23,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using System;
-
 namespace JoyfulReaperLib.JRNet;
 
 public static class UrlValidator
 {
-    public static bool ValidateUrl(string url)
+    public static bool ValidateUrl(string? url)
     {
-        ArgumentNullException.ThrowIfNull(url);
-
-        return Uri.TryCreate(url, UriKind.Absolute, out Uri? uriResult)
+        return !string.IsNullOrWhiteSpace(url)
+            && Uri.TryCreate(url, UriKind.Absolute, out Uri? uriResult)
             && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
     }
 }
