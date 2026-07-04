@@ -1,7 +1,7 @@
-﻿/*
+/*
 MIT License
 
-Copyright(c) 2021 Kyle Givler
+Copyright(c) 2026 Kyle Givler
 https://github.com/JoyfulReaper
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,14 +23,28 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-namespace JoyfulReaperLib.JRNet;
+using JoyfulReaperLib.Sqlite;
+using Microsoft.Extensions.DependencyInjection;
 
-public static class UrlValidator
+namespace JoyfulReaperLib.WebStats.Sqlite;
+
+public static class ServiceCollectionExtensions
 {
-    public static bool ValidateUrl(string? url)
+    public static IServiceCollection AddJoyfulReaperSqliteHitCounter(
+        this IServiceCollection services,
+        Action<SqliteHitCounterOptions> configure)
     {
-        return !string.IsNullOrWhiteSpace(url)
-            && Uri.TryCreate(url, UriKind.Absolute, out Uri? uriResult)
-            && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(configure);
+
+        SqliteProviderInitializer.Initialize();
+
+        services
+            .AddOptions<SqliteHitCounterOptions>()
+            .Configure(configure);
+
+        services.AddSingleton<IHitCounter, SqliteHitCounter>();
+
+        return services;
     }
 }

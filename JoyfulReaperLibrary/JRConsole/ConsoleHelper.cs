@@ -1,4 +1,4 @@
-﻿/*
+/*
 MIT License
 
 Copyright (c) 2020 Kyle Givler
@@ -30,15 +30,16 @@ namespace JoyfulReaperLib.JRConsole;
 public static class ConsoleHelper
 {
     public static ConsoleColor DefaultColor { get; set; } = Console.ForegroundColor;
-    private static readonly Random _random = new Random();
 
     /// <summary>
     /// Output a message to the console in color.
     /// </summary>
-    /// <param name="color">The color to output in</param>
-    /// <param name="message">The message to output</param>
+    /// <param name="color">The color to output in.</param>
+    /// <param name="message">The message to output.</param>
     public static void ColorWrite(ConsoleColor color, string message)
     {
+        ArgumentNullException.ThrowIfNull(message);
+
         ConsoleColor old = Console.ForegroundColor;
 
         Console.ForegroundColor = color;
@@ -49,82 +50,73 @@ public static class ConsoleHelper
     /// <summary>
     /// Output a message to the console using the default color.
     /// </summary>
-    /// <param name="message">The Message to output</param>
+    /// <param name="message">The message to output.</param>
     public static void ColorWrite(string message)
     {
+        ArgumentNullException.ThrowIfNull(message);
+
         ColorWrite(DefaultColor, message);
     }
 
     /// <summary>
-    /// Out put a message and newline to the console in color. 
+    /// Output a message and newline to the console in color.
     /// </summary>
-    /// <param name="color">The color to output</param>
-    /// <param name="message">The Message to output</param>
+    /// <param name="color">The color to output.</param>
+    /// <param name="message">The message to output.</param>
     public static void ColorWriteLine(ConsoleColor color, string message)
     {
-        ColorWrite(color, $"{message}{System.Environment.NewLine}");
+        ColorWrite(color, $"{message}{Environment.NewLine}");
     }
 
     /// <summary>
-    /// Write out a message with each letter in alternating colors
+    /// Write out a message with each letter in alternating colors.
     /// </summary>
-    /// <param name="colors">A list of the colors to use</param>
-    /// <param name="message">The message to use</param>
-    /// <param name="random">True, select random color from the list, false select color sin sequence</param>
+    /// <param name="colors">A list of the colors to use.</param>
+    /// <param name="message">The message to use.</param>
+    /// <param name="random">True selects a random color from the list, false selects colors in sequence.</param>
     public static void MulticolorWriteLine(List<ConsoleColor> colors, string message, bool random = false)
     {
-        MulticolorWrite(colors, $"{message}{System.Environment.NewLine}", random);
+        MulticolorWrite(colors, $"{message}{Environment.NewLine}", random);
     }
 
     /// <summary>
-    /// Write out a message with each letter in alternating colors
+    /// Write out a message with each letter in alternating colors.
     /// </summary>
-    /// <param name="colors">A list of the colors to use</param>
-    /// <param name="message">The message to use</param>
-    /// <param name="random">True, select random color from the list, false select color sin sequence</param>
+    /// <param name="colors">A list of the colors to use.</param>
+    /// <param name="message">The message to use.</param>
+    /// <param name="random">True selects a random color from the list, false selects colors in sequence.</param>
     public static void MulticolorWrite(List<ConsoleColor> colors, string message, bool random = false)
     {
-        int colorIndex = -1;
-
-        for (int i = 0; i < message.Length; i++)
+        foreach (var colorChoice in GetColorSequence(colors, message, random))
         {
-            if (random)
+            if (colorChoice.Color.HasValue)
             {
-                colorIndex = _random.Next(0, colors.Count);
+                ColorWrite(colorChoice.Color.Value, colorChoice.Character.ToString());
             }
             else
             {
-                if (!Char.IsWhiteSpace(message[i]))
-                {
-                    colorIndex++;
-                    if (colorIndex >= colors.Count)
-                    {
-                        colorIndex = 0;
-                    }
-                }
+                ColorWrite(DefaultColor, colorChoice.Character.ToString());
             }
-
-            ColorWrite(colors[colorIndex], message[i].ToString());
         }
     }
 
     /// <summary>
-    /// Out put a message and newline to the console in the default color. 
+    /// Output a message and newline to the console in the default color.
     /// </summary>
-    /// <param name="message">The message to output</param>
+    /// <param name="message">The message to output.</param>
     public static void ColorWriteLine(string message)
     {
         ColorWriteLine(DefaultColor, message);
     }
 
     /// <summary>
-    /// Display the prompt in a loop until a valid int is entered at the console
+    /// Display the prompt in a loop until a valid int is entered at the console.
     /// </summary>
-    /// <param name="prompt">The prompt to display on the console</param>
-    /// <param name="min">Minimum int to accept</param>
-    /// <param name="max">Maximum int to accept</param>
-    /// <param name="color">Color to use when displaying the prompt</param>
-    /// <returns></returns>
+    /// <param name="prompt">The prompt to display on the console.</param>
+    /// <param name="min">Minimum int to accept.</param>
+    /// <param name="max">Maximum int to accept.</param>
+    /// <param name="color">Color to use when displaying the prompt.</param>
+    /// <returns>The entered integer.</returns>
     public static int GetValidInt(string prompt, int min, int max, ConsoleColor color)
     {
         int output;
@@ -138,35 +130,76 @@ public static class ConsoleHelper
     }
 
     /// <summary>
-    /// Display the prompt in a loop until a valid int is entered at the console
+    /// Display the prompt in a loop until a valid int is entered at the console.
     /// </summary>
-    /// <param name="prompt">The prompt to display on the console</param>
-    /// <param name="min">Minimum int to accept</param>
-    /// <param name="max">Maximum int to accept</param>
-    /// <returns></returns>
+    /// <param name="prompt">The prompt to display on the console.</param>
+    /// <param name="min">Minimum int to accept.</param>
+    /// <param name="max">Maximum int to accept.</param>
+    /// <returns>The entered integer.</returns>
     public static int GetValidInt(string prompt, int min, int max)
     {
         return GetValidInt(prompt, min, max, Console.ForegroundColor);
     }
 
     /// <summary>
-    /// Display the prompt in a loop until a valid int is entered at the console
+    /// Display the prompt in a loop until a valid int is entered at the console.
     /// </summary>
-    /// <param name="prompt">The prompt to display on the console</param>
-    /// <param name="color">The color to display the prompt in</param>
-    /// <returns>The int entered at the console</returns>
+    /// <param name="prompt">The prompt to display on the console.</param>
+    /// <param name="color">The color to display the prompt in.</param>
+    /// <returns>The entered integer.</returns>
     public static int GetValidInt(string prompt, ConsoleColor color)
     {
         return GetValidInt(prompt, int.MinValue, int.MaxValue, color);
     }
 
     /// <summary>
-    /// Display the prompt in a loop until a valid int is entered at the console
+    /// Display the prompt in a loop until a valid int is entered at the console.
     /// </summary>
-    /// <param name="prompt">The prompt to display on the console</param>
-    /// <returns>The int entered at the console</returns>
+    /// <param name="prompt">The prompt to display on the console.</param>
+    /// <returns>The entered integer.</returns>
     public static int GetValidInt(string prompt)
     {
         return GetValidInt(prompt, Console.ForegroundColor);
+    }
+
+    internal static IReadOnlyList<(char Character, ConsoleColor? Color)> GetColorSequence(
+        IReadOnlyList<ConsoleColor> colors,
+        string message,
+        bool random = false)
+    {
+        ArgumentNullException.ThrowIfNull(colors);
+        ArgumentNullException.ThrowIfNull(message);
+
+        if (colors.Count == 0)
+        {
+            throw new ArgumentException("At least one color is required.", nameof(colors));
+        }
+
+        var result = new (char Character, ConsoleColor? Color)[message.Length];
+        int colorIndex = -1;
+
+        for (int i = 0; i < message.Length; i++)
+        {
+            char character = message[i];
+
+            if (random)
+            {
+                result[i] = (character, colors[Random.Shared.Next(colors.Count)]);
+                continue;
+            }
+
+            if (!char.IsWhiteSpace(character))
+            {
+                colorIndex = (colorIndex + 1) % colors.Count;
+                result[i] = (character, colors[colorIndex]);
+                continue;
+            }
+
+            result[i] = colorIndex >= 0
+                ? (character, colors[colorIndex])
+                : (character, null);
+        }
+
+        return result;
     }
 }

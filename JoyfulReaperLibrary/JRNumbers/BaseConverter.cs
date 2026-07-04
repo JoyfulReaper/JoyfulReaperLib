@@ -1,4 +1,4 @@
-﻿/*
+/*
 MIT License
 
 Copyright(c) 2020 Kyle Givler
@@ -23,45 +23,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 using System;
 
-namespace JoyfulReaperLib.JRNumbers
+namespace JoyfulReaperLib.JRNumbers;
+
+public static class BaseConverter
 {
-    public static class BaseConverter
+    public static string DecimalToBinary(int number)
     {
-        public static string DecimalToBinary(int number)
-        {
-            string result = string.Empty;
-            while (number > 0)
-            {
-                result = number % 2 + result;
-                number /= 2;
-            }
+        return Convert.ToString(number, 2);
+    }
 
-            return result == "" ? "0" : result;
+    public static int BinaryToDecimal(string number)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(number);
+
+        foreach (char digit in number)
+        {
+            if (digit is not ('0' or '1'))
+            {
+                throw new FormatException("Binary input must contain only '0' and '1' characters.");
+            }
         }
 
-        public static int BinaryToDecimal(string number)
-        {
-            if (!int.TryParse(number, out _))
-            {
-                throw new ArgumentException(nameof(number) + " could not be converted to an integer!");
-            }
-
-            int result = 0;
-            int place = 0;
-            for (int i = number.Length - 1; i >= 0; i--)
-            {
-                var curr = int.Parse(number[i].ToString());
-                if (curr == 1)
-                {
-                    result = result + (int)Math.Pow(2, place);
-                }
-                place++;
-            }
-
-            return result;
-        }
+        return Convert.ToInt32(number, 2);
     }
 }

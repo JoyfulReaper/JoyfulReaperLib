@@ -1,7 +1,7 @@
-﻿/*
+/*
 MIT License
 
-Copyright(c) 2021 Kyle Givler
+Copyright(c) 2026 Kyle Givler
 https://github.com/JoyfulReaper
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,14 +23,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-namespace JoyfulReaperLib.JRNet;
+namespace JoyfulReaperLib.Sqlite;
 
-public static class UrlValidator
+public static class SqliteProviderInitializer
 {
-    public static bool ValidateUrl(string? url)
+    private static int _initialized;
+
+    public static void Initialize()
     {
-        return !string.IsNullOrWhiteSpace(url)
-            && Uri.TryCreate(url, UriKind.Absolute, out Uri? uriResult)
-            && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+        if (Interlocked.Exchange(ref _initialized, 1) == 1)
+        {
+            return;
+        }
+
+        SQLitePCL.raw.SetProvider(new SQLitePCL.SQLite3Provider_e_sqlite3());
     }
 }

@@ -2,18 +2,21 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
+	<ImplicitUsings>enable</ImplicitUsings>
 	<Nullable>enable</Nullable>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Copyright>Copyright 2022 Kyle Givler</Copyright>
+    <Copyright>Copyright 2022-2026 Kyle Givler</Copyright>
     <PackageProjectUrl>https://github.com/JoyfulReaper</PackageProjectUrl>
 	<PackageId>JoyfulReaperLib</PackageId>
-	<Version>0.0.5</Version>
+	<Version>0.0.9</Version>
 	<Authors>Kyle Givler</Authors>
-	<Description>Shared utilities and data helpers.</Description>
+	<Description>Lightweight shared utility helpers.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="10.0.9" />
+    <InternalsVisibleTo Include="JoyfulReaperLib.Tests" />
+    <None Include="..\\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>

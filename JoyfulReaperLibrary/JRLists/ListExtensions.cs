@@ -1,4 +1,4 @@
-﻿/*
+/*
 MIT License
 
 Copyright(c) 2021 Kyle Givler
@@ -25,16 +25,23 @@ SOFTWARE.
 
 using System;
 using System.Collections.Generic;
+using JoyfulReaperLib.Internal;
 
-namespace JoyfulReaperLib.JRLists
+namespace JoyfulReaperLib.JRLists;
+
+public static class ListExtensions
 {
-    public static class ListExtensions
+    public static T RandomItem<T>(this List<T> list)
     {
-        private static readonly Random _random = new Random();
+        ArgumentNullException.ThrowIfNull(list);
 
-        public static T RandomItem<T>(this List<T> list)
-        {
-            return list[_random.Next(list.Count)];
-        }
+        return RandomItemSelector.RandomItem(list);
+    }
+
+    public static T RandomItem<T>(this IReadOnlyList<T> list)
+    {
+        ArgumentNullException.ThrowIfNull(list);
+
+        return RandomItemSelector.RandomItem(list);
     }
 }

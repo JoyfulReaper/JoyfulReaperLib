@@ -1,4 +1,4 @@
-﻿/*
+/*
 MIT License
 
 Copyright(c) 2021 Kyle Givler
@@ -26,42 +26,38 @@ SOFTWARE.
 using System;
 using System.Linq;
 
-namespace JoyfulReaperLib.JREnums
+namespace JoyfulReaperLib.JREnums;
+
+public static class EnumHelper
 {
-
-    public static class EnumHelper
+    public static T RandomEnumValue<T>()
+        where T : struct, Enum
     {
-        private static readonly Random _random = new Random();
+        T[] values = Enum.GetValues<T>();
+        return values[Random.Shared.Next(values.Length)];
+    }
 
-        public static T RandomEnumValue<T>()
-        {
-            // Todo work with negative numbers
-            var values = Enum.GetValues(typeof(T));
-            return (T)values.GetValue(_random.Next(values.Length));
-        }
+    /// <summary>
+    /// Check if a value is valid for the given enum.
+    /// </summary>
+    /// <typeparam name="T">The type of the enum.</typeparam>
+    /// <param name="value">The value to check.</param>
+    /// <returns>True if valid, otherwise false.</returns>
+    public static bool EnumValueIsValid<T>(T value)
+        where T : struct, Enum
+    {
+        return Enum.IsDefined(typeof(T), value);
+    }
 
-        /// <summary>
-        /// Check is a value is valid for the given enum
-        /// </summary>
-        /// <typeparam name="T">The type of the Enum</typeparam>
-        /// <param name="value">The value to check</param>
-        /// <returns>True if valid, otherwise false</returns>
-        public static bool EnumValueIsValid<T>(T value)
-        {
-            return Enum.IsDefined(typeof(T), value);
-        }
-
-        /// <summary>
-        /// Get a tuple with the min and max enum values
-        /// </summary>
-        /// <typeparam name="T">Enum to check</typeparam>
-        /// <returns>Tuple with min and max enum values</returns>
-        public static (int min, int max) GetEnumMinMax<T>()
-        {
-            return (
-                Enum.GetValues(typeof(T)).Cast<int>().Min(), 
-                Enum.GetValues(typeof(T)).Cast<int>().Max()
-            );
-        }
+    /// <summary>
+    /// Get a tuple with the min and max enum values.
+    /// </summary>
+    /// <typeparam name="T">Enum to check.</typeparam>
+    /// <returns>Tuple with min and max enum values.</returns>
+    public static (long min, long max) GetEnumMinMax<T>()
+        where T : struct, Enum
+    {
+        IEnumerable<long> values = Enum.GetValues<T>().Select(value => Convert.ToInt64(value));
+        return (values.Min(), values.Max());
     }
 }

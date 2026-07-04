@@ -1,4 +1,4 @@
-﻿/*
+/*
 MIT License
 
 Copyright(c) 2020 Kyle Givler
@@ -23,38 +23,52 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-namespace JoyfulReaperLib.JRCurrency
+namespace JoyfulReaperLib.JRCurrency;
+
+public sealed class CurrencyUnit
 {
-    public class CurrencyUnit
+    /// <summary>
+    /// Name of the currency.
+    /// </summary>
+    public string Name { get; }
+
+    /// <summary>
+    /// Value of the currency.
+    /// </summary>
+    public decimal Value { get; }
+
+    /// <summary>
+    /// Plural name of the currency.
+    /// </summary>
+    public string PluralName { get; }
+
+    /// <summary>
+    /// Quantity of this currency being represented.
+    /// </summary>
+    public int Quantity { get; }
+
+    public CurrencyUnit(decimal value, string name, string pluralName = "", int quantity = 0)
     {
-        /// <summary>
-        /// Name of the Currency
-        /// </summary>
-        public string Name { get; set; }
-        /// <summary>
-        /// Value of the Currency
-        /// </summary>
-        public decimal Value { get; set; }
-        /// <summary>
-        /// Plural name of the Currency
-        /// </summary>
-        public string PluralName { get; set; }
-        /// <summary>
-        /// Quantity of this Currency being represented
-        /// </summary>
-        public int Quantity { get; set; }
-
-        public CurrencyUnit(decimal value, string name, string pluralName="", int quantity = 0)
+        if (value <= 0)
         {
-            Name = name;
-            Value = value;
-            PluralName = pluralName;
-            Quantity = quantity;
-
-            if (string.IsNullOrEmpty(pluralName))
-            {
-                PluralName = $"{Name}s";
-            }
+            throw new ArgumentOutOfRangeException(nameof(value), "Currency value must be greater than zero.");
         }
+
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+
+        if (quantity < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(quantity), "Quantity cannot be negative.");
+        }
+
+        Name = name;
+        Value = value;
+        PluralName = string.IsNullOrWhiteSpace(pluralName) ? $"{Name}s" : pluralName;
+        Quantity = quantity;
+    }
+
+    public CurrencyUnit WithQuantity(int quantity)
+    {
+        return new CurrencyUnit(Value, Name, PluralName, quantity);
     }
 }
