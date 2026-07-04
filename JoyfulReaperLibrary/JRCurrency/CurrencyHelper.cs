@@ -1,4 +1,4 @@
-﻿/*
+/*
 MIT License
 
 Copyright(c) 2020 Kyle Givler
@@ -32,67 +32,77 @@ namespace JoyfulReaperLib.JRCurrency;
 public static class CurrencyHelper
 {
     /// <summary>
-    /// Calculate change from a purchase
+    /// Calculate change using a greedy algorithm.
     /// </summary>
-    /// <param name="totalChange">The total amount of change to return</param>
-    /// <param name="currencyUnits">The CurrencyUnits available to give change in</param>
-    /// <returns>A list of CurrencyUnits with their Quantities set in order to give totalChange with the fewest possible "coins"</returns>
-    public static List<CurrencyUnit> CalculateChange(decimal totalChange, List<CurrencyUnit> currencyUnits)
+    /// <param name="totalChange">The total amount of change to return.</param>
+    /// <param name="currencyUnits">The currency units available to give change in.</param>
+    /// <returns>A list of currency units with quantities needed to make the requested change.</returns>
+    public static List<CurrencyUnit> CalculateChange(decimal totalChange, IEnumerable<CurrencyUnit> currencyUnits)
     {
-        var change = new List<CurrencyUnit>();
-        foreach (var currencyUnit in currencyUnits.OrderByDescending(x => x.Value))
+        if (totalChange < 0)
         {
-            int count;
+            throw new ArgumentOutOfRangeException(nameof(totalChange), "Total change cannot be negative.");
+        }
 
-            count = (int)(totalChange / currencyUnit.Value);
-            totalChange %= currencyUnit.Value;
+        ArgumentNullException.ThrowIfNull(currencyUnits);
+
+        List<CurrencyUnit> orderedUnits = currencyUnits.OrderByDescending(x => x.Value).ToList();
+        if (orderedUnits.Count == 0)
+        {
+            throw new ArgumentException("At least one currency unit is required.", nameof(currencyUnits));
+        }
+
+        List<CurrencyUnit> change = new List<CurrencyUnit>();
+        decimal remaining = totalChange;
+
+        foreach (CurrencyUnit currencyUnit in orderedUnits)
+        {
+            int count = (int)(remaining / currencyUnit.Value);
+            remaining %= currencyUnit.Value;
 
             if (count > 0)
             {
-                change.Add(new CurrencyUnit(currencyUnit.Value, currencyUnit.Name, currencyUnit.PluralName, count));
+                change.Add(currencyUnit.WithQuantity(count));
             }
-            currencyUnit.Quantity = count;
         }
 
-        if (totalChange != 0)
+        if (remaining != 0)
         {
-            throw new ArgumentException("Unable to successfully make change!", nameof(totalChange));
+            throw new ArgumentException("Unable to successfully make change with the provided currency units.", nameof(totalChange));
         }
 
         return change;
     }
 
     /// <summary>
-    /// Get a List of common US Coins
+    /// Get a list of common US coins.
     /// </summary>
-    /// <returns>List of common US Coins</returns>
+    /// <returns>List of common US coins.</returns>
     public static List<CurrencyUnit> GetUSDCommonCoins()
     {
-        List<CurrencyUnit> coins = new List<CurrencyUnit>();
-
-        coins.Add(new CurrencyUnit(0.25m, "quarter"));
-        coins.Add(new CurrencyUnit(0.10m, "dime"));
-        coins.Add(new CurrencyUnit(0.05m, "nickel"));
-        coins.Add(new CurrencyUnit(0.01m, "penny", "pennies"));
-
-        return coins;
+        return
+        [
+            new CurrencyUnit(0.25m, "quarter"),
+            new CurrencyUnit(0.10m, "dime"),
+            new CurrencyUnit(0.05m, "nickel"),
+            new CurrencyUnit(0.01m, "penny", "pennies"),
+        ];
     }
 
     /// <summary>
-    /// Get a list of common US paper currency
+    /// Get a list of common US paper currency.
     /// </summary>
-    /// <returns>list of common US paper currency</returns>
+    /// <returns>List of common US paper currency.</returns>
     public static List<CurrencyUnit> GetUSDCommonBills()
     {
-        List<CurrencyUnit> bills = new List<CurrencyUnit>();
-
-        bills.Add(new CurrencyUnit(1.00m, "one dollar bill"));
-        bills.Add(new CurrencyUnit(5.00m, "five dollar bill"));
-        bills.Add(new CurrencyUnit(10.00m, "ten dollar bill"));
-        bills.Add(new CurrencyUnit(20.00m, "twenty dollar bill"));
-        bills.Add(new CurrencyUnit(50.00m, "fifty dollar bill"));
-        bills.Add(new CurrencyUnit(100.00m, "one hundred dollar bill"));
-
-        return bills;
+        return
+        [
+            new CurrencyUnit(1.00m, "one dollar bill"),
+            new CurrencyUnit(5.00m, "five dollar bill"),
+            new CurrencyUnit(10.00m, "ten dollar bill"),
+            new CurrencyUnit(20.00m, "twenty dollar bill"),
+            new CurrencyUnit(50.00m, "fifty dollar bill"),
+            new CurrencyUnit(100.00m, "one hundred dollar bill"),
+        ];
     }
 }

@@ -1,4 +1,4 @@
-﻿/*
+/*
 MIT License
 
 Copyright(c) 2020 Kyle Givler
@@ -23,68 +23,62 @@ SOFTWARE.
 */
 
 using System;
-using System.Text;
 
 namespace JoyfulReaperLib.JRText;
 
 public static class StringHelper
 {
     /// <summary>
-    /// Return null if value is null or whitespace, otherwise return value
+    /// Return null if value is null or whitespace, otherwise return value.
     /// </summary>
-    /// <param name="value"></param>
-    /// <returns></returns>
-    public static string? AssignNullIfEmpty(string value)
+    /// <param name="value">The string to check.</param>
+    /// <returns>Null for null or whitespace input; otherwise the original value.</returns>
+    public static string? AssignNullIfEmpty(string? value)
     {
-        if (String.IsNullOrWhiteSpace(value))
-        {
-            return null;
-        }
-
-        return value;
+        return string.IsNullOrWhiteSpace(value) ? null : value;
     }
 
     /// <summary>
-    /// Reverse a string
+    /// Reverse a string.
     /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
+    /// <param name="input">The input string.</param>
+    /// <returns>The reversed string.</returns>
     public static string Reverse(string input)
     {
-        StringBuilder sb = new StringBuilder();
+        ArgumentNullException.ThrowIfNull(input);
 
-        for (int i = input.Length - 1; i >= 0; i--)
-        {
-            sb.Append(input[i]);
-        }
-
-        return sb.ToString();
+        char[] characters = input.ToCharArray();
+        Array.Reverse(characters);
+        return new string(characters);
     }
 
     /// <summary>
-    /// Check to see if a string is a palindrome
+    /// Check to see if a string is a palindrome.
     /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
+    /// <param name="input">The input string.</param>
+    /// <returns>True when the string is a palindrome.</returns>
     public static bool IsPalindrome(string input)
     {
-        input = input.Replace(" ", string.Empty).ToUpperInvariant();
+        ArgumentNullException.ThrowIfNull(input);
 
-        return input == Reverse(input).ToUpperInvariant();
+        string normalized = input.Replace(" ", string.Empty).ToUpperInvariant();
+        return normalized == Reverse(normalized);
     }
 
     /// <summary>
-    /// Returns the number of vowels in the given string
+    /// Returns the number of vowels in the given string.
     /// </summary>
-    /// <param name="input">The string to analyze</param>
-    /// <param name="consonants">The number of consonants</param>
-    /// <param name="whiteSpace">The number of whitespace characters</param>
-    /// <param name="numbers">The number of numbers</param>
-    /// <param name="unknown">Unknown characters</param>
-    /// <returns></returns>
+    /// <param name="input">The string to analyze.</param>
+    /// <param name="consonants">The number of consonants.</param>
+    /// <param name="whiteSpace">The number of whitespace characters.</param>
+    /// <param name="numbers">The number of digits.</param>
+    /// <param name="unknown">The number of non-alphanumeric, non-whitespace characters.</param>
+    /// <returns>The number of vowels in the input.</returns>
     public static int VowelAnalysis(string input, out int consonants, out int whiteSpace, out int numbers, out int unknown)
     {
-        char[] vowels = { 'a', 'e', 'i', 'o', 'u' };
+        ArgumentNullException.ThrowIfNull(input);
+
+        char[] vowels = ['a', 'e', 'i', 'o', 'u'];
 
         int numVowels = 0;
         consonants = 0;
@@ -94,7 +88,7 @@ public static class StringHelper
 
         foreach (char c in input)
         {
-            if (Array.IndexOf(vowels, char.ToLower(c)) >= 0)
+            if (Array.IndexOf(vowels, char.ToLowerInvariant(c)) >= 0)
             {
                 numVowels++;
             }
@@ -104,7 +98,7 @@ public static class StringHelper
                 {
                     consonants++;
                 }
-                else if (char.IsDigit(c))
+                else
                 {
                     numbers++;
                 }

@@ -8,6 +8,10 @@ Packages:
 - `JoyfulReaperLib.Caching.Sqlite`
 - `JoyfulReaperLib.WebStats.Sqlite`
 
+Base package:
+
+`JoyfulReaperLib` is the lightweight base package for shared utility helpers. Optional SQLite-backed caching, provider initialization, and web stats features live in the separate `JoyfulReaperLib.Sqlite`, `JoyfulReaperLib.Caching.Sqlite`, and `JoyfulReaperLib.WebStats.Sqlite` packages.
+
 Install:
 
 ```bash

@@ -1,4 +1,4 @@
-﻿/*
+/*
 MIT License
 
 Copyright(c) 2020 Kyle Givler
@@ -22,44 +22,67 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-// https://en.wikipedia.org/wiki/Luhn_algorithm
 
 namespace JoyfulReaperLib.JRAlgorithms;
 
 public static class Luhn
 {
-    public enum checkType { Luhn, Visa };
+    public enum CheckType
+    {
+        Luhn,
+        Visa
+    }
+
+    [Obsolete("Use CheckType instead.")]
+    public enum checkType
+    {
+        Luhn,
+        Visa
+    }
 
     /// <summary>
-    /// Validate the check digit using the Luhn Algorithm
+    /// Validate the check digit using the Luhn algorithm.
     /// </summary>
-    /// <param name="number">The number to validate as a string</param>
-    /// <returns>True if check digit is valid, false otherwise</returns>
-    public static bool LuhnValidate(string number)
+    /// <param name="number">The number to validate as a string.</param>
+    /// <returns>True if check digit is valid, false otherwise.</returns>
+    public static bool LuhnValidate(string? number)
     {
-        var checkDigit = ComputeCheckDigit(number.Substring(0, number.Length - 1));
-        var test = int.Parse(number.Substring(number.Length - 1));
-        return checkDigit == test;
-    }
-
-    public static bool LuhnValidate(string number, checkType type)
-    {
-        if (type == checkType.Luhn)
+        if (!IsValidDigitSequence(number) || number!.Length < 2)
         {
-            return LuhnValidate(number);
+            return false;
         }
 
-        if (type == checkType.Visa)
-        {
-            return ValidateVisa(number);
-        }
+        ReadOnlySpan<char> digits = number.AsSpan();
+        int checkDigit = ComputeCheckDigit(digits[..^1]);
+        int providedDigit = digits[^1] - '0';
 
-        return false;
+        return checkDigit == providedDigit;
     }
 
-    private static bool ValidateVisa(string number)
+    public static bool LuhnValidate(string? number, CheckType type)
     {
-        if (!number.StartsWith("4"))
+        return type switch
+        {
+            CheckType.Luhn => LuhnValidate(number),
+            CheckType.Visa => ValidateVisa(number),
+            _ => false
+        };
+    }
+
+    [Obsolete("Use LuhnValidate(string?, CheckType) instead.")]
+    public static bool LuhnValidate(string? number, checkType type)
+    {
+        return LuhnValidate(number, (CheckType)type);
+    }
+
+    private static bool ValidateVisa(string? number)
+    {
+        if (!IsValidDigitSequence(number))
+        {
+            return false;
+        }
+
+        if (!number!.StartsWith('4'))
         {
             return false;
         }
@@ -73,23 +96,37 @@ public static class Luhn
     }
 
     /// <summary>
-    /// Adds the check digit to a number using the Lugn Algorithm
+    /// Adds the check digit to a number using the Luhn algorithm.
     /// </summary>
-    /// <param name="number">The number to calculate the check digit of</param>
-    /// <param name="checkDigit">The check digit</param>
-    /// <returns></returns>
+    /// <param name="number">The number to calculate the check digit of.</param>
+    /// <param name="checkDigit">The check digit.</param>
+    /// <returns>The completed Luhn number.</returns>
     public static string LuhnCreate(string number, out int checkDigit)
     {
+        ArgumentNullException.ThrowIfNull(number);
+
         checkDigit = ComputeCheckDigit(number);
         return $"{number}{checkDigit}";
     }
 
     /// <summary>
-    /// Compute the check digit for the given number using the Luhn Algorithm
+    /// Compute the check digit for the given number using the Luhn algorithm.
     /// </summary>
-    /// <param name="luhn">The number to computer the check digit for as a string</param>
-    /// <returns>The check digit</returns>
+    /// <param name="number">The number to compute the check digit for as a string.</param>
+    /// <returns>The check digit.</returns>
     public static int ComputeCheckDigit(string number)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(number);
+
+        if (!IsValidDigitSequence(number))
+        {
+            throw new ArgumentException("Number must contain only digits.", nameof(number));
+        }
+
+        return ComputeCheckDigit(number.AsSpan());
+    }
+
+    private static int ComputeCheckDigit(ReadOnlySpan<char> number)
     {
         int nDigits = number.Length;
         int sum = 0;
@@ -97,7 +134,7 @@ public static class Luhn
 
         for (int i = 0; i < nDigits; i++)
         {
-            int digit = int.Parse(number[i].ToString());
+            int digit = number[i] - '0';
 
             if (i % 2 != parity)
             {
@@ -113,5 +150,23 @@ public static class Luhn
         }
 
         return (sum * 9) % 10;
+    }
+
+    private static bool IsValidDigitSequence(string? number)
+    {
+        if (string.IsNullOrWhiteSpace(number))
+        {
+            return false;
+        }
+
+        foreach (char character in number)
+        {
+            if (!char.IsAsciiDigit(character))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

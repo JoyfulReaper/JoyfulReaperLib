@@ -31,10 +31,9 @@ public static class UrlValidator
 {
     public static bool ValidateUrl(string url)
     {
-        Uri uriResult;
-        bool valid = Uri.TryCreate(url, UriKind.Absolute, out uriResult)
-            && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+        ArgumentNullException.ThrowIfNull(url);
 
-        return valid;
+        return Uri.TryCreate(url, UriKind.Absolute, out Uri? uriResult)
+            && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
     }
 }

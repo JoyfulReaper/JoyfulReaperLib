@@ -1,43 +1,57 @@
-﻿//https://stackoverflow.com/questions/64799591/is-there-a-high-performance-way-to-replace-the-binaryformatter-in-net5
-
-using System.Linq;
-using System.Text.Json.Serialization;
+using System;
 using System.Text.Json;
-using System.Text;
+using System.Text.Json.Serialization;
 
 namespace JoyfulReaperLib.JRSerialization;
 
-public class JsonByteArraySerializer
+public static class JsonByteArraySerializer
 {
     private static readonly JsonSerializerOptions _jsonSerializerOptions = GetJsonSerializerOptions();
 
     /// <summary>
-    /// Convert an object to a Byte Array.
+    /// Serialize an object into a UTF-8 byte array.
     /// </summary>
-    public static byte[]? ObjectToByteArray(object objData)
+    public static byte[]? SerializeToUtf8Bytes<T>(T value)
     {
-        if (objData == null)
+        if (value is null)
+        {
             return default;
+        }
 
-        return Encoding.UTF8.GetBytes(JsonSerializer.Serialize(objData, _jsonSerializerOptions));
+        return JsonSerializer.SerializeToUtf8Bytes(value, _jsonSerializerOptions);
     }
 
     /// <summary>
-    /// Convert a byte array to an Object of T.
+    /// Deserialize a UTF-8 byte array into an object of type <typeparamref name="T"/>.
     /// </summary>
-    public static T? ByteArrayToObject<T>(byte[] byteArray)
+    public static T? DeserializeFromUtf8Bytes<T>(byte[]? byteArray)
     {
-        if (byteArray == null || !byteArray.Any())
+        if (byteArray == null || byteArray.Length == 0)
+        {
             return default;
+        }
 
         return JsonSerializer.Deserialize<T>(byteArray, _jsonSerializerOptions);
     }
 
+    [Obsolete("Use SerializeToUtf8Bytes instead.")]
+    public static byte[]? ObjectToByteArray(object? objData)
+    {
+        return SerializeToUtf8Bytes(objData);
+    }
+
+    [Obsolete("Use DeserializeFromUtf8Bytes instead.")]
+    public static T? ByteArrayToObject<T>(byte[]? byteArray)
+    {
+        return DeserializeFromUtf8Bytes<T>(byteArray);
+    }
+
     private static JsonSerializerOptions GetJsonSerializerOptions()
     {
-        return new JsonSerializerOptions() {
+        return new JsonSerializerOptions
+        {
             PropertyNamingPolicy = null,
-            WriteIndented = true,
+            WriteIndented = false,
             AllowTrailingCommas = true,
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         };

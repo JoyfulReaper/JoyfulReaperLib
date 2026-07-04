@@ -1,4 +1,4 @@
-﻿/*
+/*
 MIT License
 
 Copyright(c) 2020 Kyle Givler
@@ -23,124 +23,131 @@ SOFTWARE.
 */
 
 using System;
+using System.Collections.Generic;
 using System.Text;
 
-namespace JoyfulReaperLib.JRText
+namespace JoyfulReaperLib.JRText;
+
+/// <summary>
+/// A class for line wrapping, using a greedy wrapping algorithm.
+/// </summary>
+public class GreedyWrap
 {
+    private int _lineWidth;
+
     /// <summary>
-    /// A class for line wrapping, using the GreedyWrap algorithm
+    /// The line width to wrap to.
     /// </summary>
-    public class GreedyWrap
+    public int LineWidth
     {
-        /// <summary>
-        /// The line width to wrap to
-        /// </summary>
-        public int LineWidth { get; set; }
-        /// <summary>
-        /// The width of tabs in spaces
-        /// </summary>
-        public ushort TabWidth { get; set; } = 4;
-        /// <summary>
-        /// If true will split words with a length greater than lineWidth value
-        /// </summary>
-        public bool WrapWordsLongerThanLineWidth { get; set; } = false;
+        get => _lineWidth;
+        set => _lineWidth = value > 0
+            ? value
+            : throw new ArgumentOutOfRangeException(nameof(value), "Line width must be greater than zero.");
+    }
 
-        private int spaceLeft;
-        private StringBuilder text;
-        private const ushort SPACE_WIDTH = 1;
+    /// <summary>
+    /// The width of tabs in spaces.
+    /// </summary>
+    public ushort TabWidth { get; set; } = 4;
 
-        /// <summary>
-        /// Construct a GreedyWrapper
-        /// </summary>
-        /// <param name="lineWidth">The line width to wrap to</param>
-        /// <param name="wrapWordsLongerThanLineWidth">If true will split words with a length greater than lineWidth value</param>
-        public GreedyWrap(int lineWidth = 80, bool wrapWordsLongerThanLineWidth = false)
+    /// <summary>
+    /// If true, split words that are longer than the line width.
+    /// </summary>
+    public bool WrapWordsLongerThanLineWidth { get; set; }
+
+    /// <summary>
+    /// Construct a GreedyWrap instance.
+    /// </summary>
+    /// <param name="lineWidth">The line width to wrap to.</param>
+    /// <param name="wrapWordsLongerThanLineWidth">If true, split words longer than line width.</param>
+    public GreedyWrap(int lineWidth = 80, bool wrapWordsLongerThanLineWidth = false)
+    {
+        LineWidth = lineWidth;
+        WrapWordsLongerThanLineWidth = wrapWordsLongerThanLineWidth;
+    }
+
+    /// <summary>
+    /// Wrap text greedily.
+    /// </summary>
+    /// <param name="input">The text to wrap.</param>
+    /// <returns>The wrapped text.</returns>
+    public string LineWrap(string? input)
+    {
+        if (string.IsNullOrEmpty(input))
         {
-            LineWidth = lineWidth;
-            WrapWordsLongerThanLineWidth = wrapWordsLongerThanLineWidth;
+            return string.Empty;
         }
 
-        /// <summary>
-        /// Wrap some text
-        /// </summary>
-        /// <param name="input">the text to wrap</param>
-        /// <returns>The text line wrapped</returns>
-        public string LineWrap(string input)
+        string normalized = NormalizeWhitespace(input);
+        string[] words = normalized.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+        if (words.Length == 0)
         {
-            if (input == null || input.Length <= 0)
-                return "";
-
-            text = new StringBuilder(input);
-            spaceLeft = LineWidth;
-            string word;
-            StringBuilder output = new StringBuilder();
-
-            while (text.Length != 0)
-            {
-                word = GetNextWord();
-                if (word.Length + SPACE_WIDTH > spaceLeft)
-                {
-                    output.Append(Environment.NewLine + word + " ");
-                    spaceLeft = LineWidth - (word.Length + SPACE_WIDTH);
-                }
-                else
-                {
-                    spaceLeft -= word.Length + SPACE_WIDTH;
-                    output.Append(word + " ");
-                }
-            }
-
-            output.Remove(output.Length - 1, 1);
-            return output.ToString();
+            return string.Empty;
         }
 
-        // Returns the next word in the text
-        private string GetNextWord()
+        StringBuilder output = new StringBuilder();
+        int currentLineLength = 0;
+
+        foreach (string word in words)
         {
-            StringBuilder word = new StringBuilder();
-            char letter;
-            ushort realLength = 0;
-
-            for (ushort pos = 0; pos < text.Length; pos++)
+            foreach (string segment in SplitWord(word))
             {
-                letter = text[pos];
-                if (letter == '\n')
-                    spaceLeft = LineWidth;
-
-                if (letter == '\t')
+                if (currentLineLength == 0)
                 {
-                    for (ushort i = 1; i < TabWidth; i++)
-                        word.Append(' ');
-
-                    realLength++;
-                    break;
+                    output.Append(segment);
+                    currentLineLength = segment.Length;
+                    continue;
                 }
 
-                if (letter == ' ')
+                if (currentLineLength + 1 + segment.Length <= LineWidth)
                 {
-                    text.Remove(0, 1);
-                    break;
+                    output.Append(' ').Append(segment);
+                    currentLineLength += segment.Length + 1;
+                    continue;
                 }
 
-                // word is longer than the LineWidth, AND we want to insert a '-' and wrap it
-                if (word.Length == LineWidth - 1 && WrapWordsLongerThanLineWidth)
-                {
-                    if (!char.IsPunctuation(text[pos + 1]) && !char.IsWhiteSpace(text[pos + 1]))
-                        word.Append('-');
-                    else
-                    {
-                        word.Append(letter);
-                        realLength++;
-                    }
-                    break;
-                }
+                output.Append(Environment.NewLine).Append(segment);
+                currentLineLength = segment.Length;
+            }
+        }
 
-                word.Append(letter);
-                realLength++;
+        return output.ToString();
+    }
+
+    private string NormalizeWhitespace(string input)
+    {
+        string expandedTabs = input.Replace("\t", new string(' ', TabWidth));
+        return expandedTabs
+            .Replace("\r\n", " ")
+            .Replace('\r', ' ')
+            .Replace('\n', ' ');
+    }
+
+    private IEnumerable<string> SplitWord(string word)
+    {
+        if (!WrapWordsLongerThanLineWidth || word.Length <= LineWidth)
+        {
+            yield return word;
+            yield break;
+        }
+
+        int chunkLength = Math.Max(1, LineWidth - 1);
+        int index = 0;
+
+        while (index < word.Length)
+        {
+            int remaining = word.Length - index;
+            if (remaining > chunkLength)
+            {
+                yield return $"{word.Substring(index, chunkLength)}-";
+                index += chunkLength;
+                continue;
             }
 
-            text.Remove(0, realLength);
-            return word.ToString();
+            yield return word[index..];
+            yield break;
         }
     }
 }
