@@ -1,14 +1,13 @@
 using JoyfulReaperLib.Sqlite;
-using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace JoyfulReaperLib.Caching.Sqlite;
+namespace JoyfulReaperLib.WebStats.Sqlite;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddJoyfulReaperSqliteDistributedCache(
+    public static IServiceCollection AddJoyfulReaperSqliteHitCounter(
         this IServiceCollection services,
-        Action<SqliteDistributedCacheOptions> configure)
+        Action<SqliteHitCounterOptions> configure)
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configure);
@@ -16,10 +15,10 @@ public static class ServiceCollectionExtensions
         SqliteProviderInitializer.Initialize();
 
         services
-            .AddOptions<SqliteDistributedCacheOptions>()
+            .AddOptions<SqliteHitCounterOptions>()
             .Configure(configure);
 
-        services.AddSingleton<IDistributedCache, SqliteDistributedCache>();
+        services.AddSingleton<IHitCounter, SqliteHitCounter>();
 
         return services;
     }

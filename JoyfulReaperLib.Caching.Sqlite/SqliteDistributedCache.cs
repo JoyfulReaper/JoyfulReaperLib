@@ -1,5 +1,6 @@
 using System.Data;
 using System.Globalization;
+using JoyfulReaperLib.Sqlite;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
@@ -289,56 +290,8 @@ public sealed class SqliteDistributedCache : IDistributedCache
     private static string ResolveConnectionString(SqliteDistributedCacheOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
-
-        if (string.IsNullOrWhiteSpace(options.ConnectionString))
-        {
-            throw new InvalidOperationException("SQLite cache connection string must include a Data Source.");
-        }
-
-        var builder = new SqliteConnectionStringBuilder(options.ConnectionString);
-        if (string.IsNullOrWhiteSpace(builder.DataSource))
-        {
-            throw new InvalidOperationException("SQLite cache connection string must include a Data Source.");
-        }
-
-        if (IsSpecialDataSource(builder.DataSource))
-        {
-            return builder.ToString();
-        }
-
-        if (!Path.IsPathRooted(builder.DataSource))
-        {
-            var basePath = ResolveBasePath(options.BasePath);
-            Directory.CreateDirectory(basePath);
-            builder.DataSource = Path.GetFullPath(Path.Combine(basePath, builder.DataSource));
-            return builder.ToString();
-        }
-
-        builder.DataSource = Path.GetFullPath(builder.DataSource);
-        var directory = Path.GetDirectoryName(builder.DataSource);
-        if (!string.IsNullOrWhiteSpace(directory))
-        {
-            Directory.CreateDirectory(directory);
-        }
-
-        return builder.ToString();
+        return SqliteConnectionStringHelper.Resolve(options.ConnectionString, options.BasePath);
     }
-
-    private static string ResolveBasePath(string? basePath)
-    {
-        if (string.IsNullOrWhiteSpace(basePath))
-        {
-            return Path.Combine(AppContext.BaseDirectory, "Data");
-        }
-
-        return Path.IsPathRooted(basePath)
-            ? Path.GetFullPath(basePath)
-            : Path.GetFullPath(basePath, AppContext.BaseDirectory);
-    }
-
-    private static bool IsSpecialDataSource(string dataSource)
-        => string.Equals(dataSource, ":memory:", StringComparison.OrdinalIgnoreCase)
-           || dataSource.StartsWith("file:", StringComparison.OrdinalIgnoreCase);
 
     private static DateTimeOffset? GetAbsoluteExpiration(
         DateTimeOffset now,

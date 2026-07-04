@@ -2,6 +2,7 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Data.Sqlite;
+using JoyfulReaperLib.Sqlite;
 
 namespace JoyfulReaperLib.Caching.Sqlite.Tests;
 

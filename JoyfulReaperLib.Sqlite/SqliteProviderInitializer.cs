@@ -1,4 +1,4 @@
-namespace JoyfulReaperLib.Caching.Sqlite;
+namespace JoyfulReaperLib.Sqlite;
 
 public static class SqliteProviderInitializer
 {
