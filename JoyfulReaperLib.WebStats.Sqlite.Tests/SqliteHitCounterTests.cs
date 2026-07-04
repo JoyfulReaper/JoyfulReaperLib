@@ -78,6 +78,18 @@ public class SqliteHitCounterTests
     }
 
     [TestMethod]
+    public async Task RelativeDataSource_UsesBasePath()
+    {
+        using var fixture = new SqliteHitCounterFixture();
+        var counter = fixture.CreateCounterWithBasePath("Data Source=stats.db;Pooling=False");
+        var expectedPath = Path.Combine(fixture.BasePath, "stats.db");
+
+        await counter.RecordHitAsync("visitor-a");
+
+        Assert.IsTrue(File.Exists(expectedPath), $"Expected database at {expectedPath}");
+    }
+
+    [TestMethod]
     public void AddJoyfulReaperSqliteHitCounter_RegistersIHitCounter()
     {
         var services = new ServiceCollection();
@@ -118,6 +130,17 @@ public class SqliteHitCounterTests
             var options = Options.Create(new SqliteHitCounterOptions
             {
                 ConnectionString = $"Data Source={Path.Combine(BasePath, dataSource)};Pooling=False"
+            });
+
+            return new SqliteHitCounter(options);
+        }
+
+        public SqliteHitCounter CreateCounterWithBasePath(string connectionString)
+        {
+            var options = Options.Create(new SqliteHitCounterOptions
+            {
+                ConnectionString = connectionString,
+                BasePath = BasePath
             });
 
             return new SqliteHitCounter(options);

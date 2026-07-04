@@ -17,7 +17,9 @@ public sealed class SqliteHitCounter : IHitCounter
         ArgumentNullException.ThrowIfNull(options);
 
         SqliteProviderInitializer.Initialize();
-        _connectionString = SqliteConnectionStringHelper.Resolve(options.Value.ConnectionString);
+        _connectionString = SqliteConnectionStringHelper.Resolve(
+            options.Value.ConnectionString,
+            options.Value.BasePath);
     }
 
     public async Task<HitCountStats> GetHitCountsAsync(CancellationToken ct = default)

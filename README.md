@@ -12,7 +12,10 @@ Install:
 
 ```bash
 dotnet add package JoyfulReaperLib.Caching.Sqlite
+dotnet add package JoyfulReaperLib.WebStats.Sqlite
 ```
+
+`JoyfulReaperLib.Sqlite` is usually pulled in transitively unless your app directly uses `SqliteProviderInitializer` or `SqliteConnectionStringHelper`.
 
 `JoyfulReaperLib` is the lightweight base package with no SQLite dependencies.
 `JoyfulReaperLib.Sqlite` provides shared SQLite provider initialization for optional SQLite-based packages.
