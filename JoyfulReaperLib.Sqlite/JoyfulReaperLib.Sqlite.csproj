@@ -8,7 +8,7 @@
     <Copyright>Copyright 2022-2026 Kyle Givler</Copyright>
     <PackageProjectUrl>https://github.com/JoyfulReaper</PackageProjectUrl>
     <PackageId>JoyfulReaperLib.Sqlite</PackageId>
-    <Version>0.0.8</Version>
+    <Version>0.0.9</Version>
     <Authors>Kyle Givler</Authors>
     <Description>Shared SQLite provider initialization and connection string helpers for JoyfulReaperLib optional packages.</Description>
   </PropertyGroup>
@@ -16,7 +16,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="10.0.9" />
     <PackageReference Include="SQLitePCLRaw.provider.e_sqlite3" Version="3.0.3" />
-    <PackageReference Include="SourceGear.sqlite3" Version="3.50.4.5" />
+    <PackageReference Include="SourceGear.sqlite3" Version="3.53.3" />
   </ItemGroup>
 
 </Project>
