@@ -8,7 +8,7 @@
     <Copyright>Copyright 2022-2026 Kyle Givler</Copyright>
     <PackageProjectUrl>https://github.com/JoyfulReaper</PackageProjectUrl>
     <PackageId>JoyfulReaperLib.WebStats.Sqlite</PackageId>
-    <Version>0.0.8</Version>
+    <Version>0.0.9</Version>
     <Authors>Kyle Givler</Authors>
     <Description>SQLite-backed reusable hit counting and web stats for JoyfulReaperLib.</Description>
   </PropertyGroup>
