@@ -7,6 +7,7 @@ Packages:
 - `JoyfulReaperLib.Sqlite`
 - `JoyfulReaperLib.Caching.Sqlite`
 - `JoyfulReaperLib.WebStats.Sqlite`
+- `JoyfulReaperLib.MissionControl`
 
 Base package:
 
@@ -26,6 +27,7 @@ dotnet add package JoyfulReaperLib.WebStats.Sqlite
 `JoyfulReaperLib.Sqlite` provides shared SQLite provider initialization for optional SQLite-based packages.
 `JoyfulReaperLib.Caching.Sqlite` provides a SQLite-backed `IDistributedCache`.
 `JoyfulReaperLib.WebStats.Sqlite` provides SQLite-backed reusable web stats and hit counting.
+`JoyfulReaperLib.MissionControl` provides a best-effort HTTP client for publishing application events to Mission Control.
 
 Caching:
 
