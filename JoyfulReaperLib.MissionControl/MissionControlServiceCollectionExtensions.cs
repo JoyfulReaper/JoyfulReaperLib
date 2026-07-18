@@ -46,6 +46,20 @@ public static class MissionControlServiceCollectionExtensions
                         IOptions<MissionControlClientOptions>>()
                     .Value;
 
+                if (!string.IsNullOrWhiteSpace(options.CloudflareAccessClientId))
+                {
+                    client.DefaultRequestHeaders.Add(
+                        "CF-Access-Client-Id",
+                        options.CloudflareAccessClientId);
+                }
+
+                if (!string.IsNullOrWhiteSpace(options.CloudflareAccessClientSecret))
+                {
+                    client.DefaultRequestHeaders.Add(
+                        "CF-Access-Client-Secret",
+                        options.CloudflareAccessClientSecret);
+                }
+
                 client.BaseAddress =
                     new Uri(options.BaseUrl, UriKind.Absolute);
 

@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JoyfulReaperLib.WebStats.Sq
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JoyfulReaperLib.MissionControl", "JoyfulReaperLib.MissionControl\JoyfulReaperLib.MissionControl.csproj", "{574CB60D-0D22-454F-AF1D-064160D41FF9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JoyfulReaperLib.Ntfy", "JoyfulReaperLib.Ntfy\JoyfulReaperLib.Ntfy.csproj", "{F807BFD9-7B79-4FC9-B888-A39C8129869F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -125,6 +127,18 @@ Global
 		{574CB60D-0D22-454F-AF1D-064160D41FF9}.Release|x64.Build.0 = Release|Any CPU
 		{574CB60D-0D22-454F-AF1D-064160D41FF9}.Release|x86.ActiveCfg = Release|Any CPU
 		{574CB60D-0D22-454F-AF1D-064160D41FF9}.Release|x86.Build.0 = Release|Any CPU
+		{F807BFD9-7B79-4FC9-B888-A39C8129869F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F807BFD9-7B79-4FC9-B888-A39C8129869F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F807BFD9-7B79-4FC9-B888-A39C8129869F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F807BFD9-7B79-4FC9-B888-A39C8129869F}.Debug|x64.Build.0 = Debug|Any CPU
+		{F807BFD9-7B79-4FC9-B888-A39C8129869F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F807BFD9-7B79-4FC9-B888-A39C8129869F}.Debug|x86.Build.0 = Debug|Any CPU
+		{F807BFD9-7B79-4FC9-B888-A39C8129869F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F807BFD9-7B79-4FC9-B888-A39C8129869F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F807BFD9-7B79-4FC9-B888-A39C8129869F}.Release|x64.ActiveCfg = Release|Any CPU
+		{F807BFD9-7B79-4FC9-B888-A39C8129869F}.Release|x64.Build.0 = Release|Any CPU
+		{F807BFD9-7B79-4FC9-B888-A39C8129869F}.Release|x86.ActiveCfg = Release|Any CPU
+		{F807BFD9-7B79-4FC9-B888-A39C8129869F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

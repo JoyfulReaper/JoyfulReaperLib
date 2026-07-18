@@ -20,4 +20,8 @@ public sealed class MissionControlClientOptions
 
     public int TimeoutMilliseconds { get; set; } =
         1000;
+
+    public string? CloudflareAccessClientId { get; set; }
+
+    public string? CloudflareAccessClientSecret { get; set; }
 }
