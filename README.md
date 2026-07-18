@@ -2,6 +2,9 @@
 
 A collection of lightweight .NET helpers and optional packages for SQLite storage, web statistics, Mission Control events, and ntfy notifications.
 
+> [!IMPORTANT]
+> These packages are not currently published to NuGet.org. The package names below identify the projects and their intended package IDs, but `dotnet add package` will not install them from the public NuGet feed yet.
+
 ## Packages
 
 | Package | Description |
@@ -15,20 +18,20 @@ A collection of lightweight .NET helpers and optional packages for SQLite storag
 
 `JoyfulReaperLib` is the lightweight base package. SQLite features, Mission Control integration, and ntfy support live in separate optional packages so applications only take the dependencies they need.
 
-## Installation
+## Using the projects locally
 
-Install the packages your application uses:
+Clone this repository and add project references from your application to the projects it uses. Replace `path/to/YourApp.csproj` with your application's project path:
 
 ```bash
-dotnet add package JoyfulReaperLib
-dotnet add package JoyfulReaperLib.Sqlite
-dotnet add package JoyfulReaperLib.Caching.Sqlite
-dotnet add package JoyfulReaperLib.WebStats.Sqlite
-dotnet add package JoyfulReaperLib.MissionControl
-dotnet add package JoyfulReaperLib.Ntfy
+dotnet add path/to/YourApp.csproj reference JoyfulReaperLibrary/JoyfulReaperLib.csproj
+dotnet add path/to/YourApp.csproj reference JoyfulReaperLib.Sqlite/JoyfulReaperLib.Sqlite.csproj
+dotnet add path/to/YourApp.csproj reference JoyfulReaperLib.Caching.Sqlite/JoyfulReaperLib.Caching.Sqlite.csproj
+dotnet add path/to/YourApp.csproj reference JoyfulReaperLib.WebStats.Sqlite/JoyfulReaperLib.WebStats.Sqlite.csproj
+dotnet add path/to/YourApp.csproj reference JoyfulReaperLib.MissionControl/JoyfulReaperLib.MissionControl.csproj
+dotnet add path/to/YourApp.csproj reference JoyfulReaperLib.Ntfy/JoyfulReaperLib.Ntfy.csproj
 ```
 
-`JoyfulReaperLib.Sqlite` is pulled in transitively by the SQLite caching and web stats packages. Install it directly when using `SqliteProviderInitializer`, `SqliteDatabaseInitializer`, or `SqliteConnectionStringHelper` in application code.
+Only add the references your application needs. `JoyfulReaperLib.Sqlite` is referenced transitively by the SQLite caching and web stats projects. Reference it directly when using `SqliteProviderInitializer`, `SqliteDatabaseInitializer`, or `SqliteConnectionStringHelper` in application code.
 
 ## JoyfulReaperLib
 
@@ -41,21 +44,150 @@ The base package contains dependency-free utility APIs, including:
 - URL and IP address validation;
 - currency, enum, console, Caesar cipher, and Vigenere cipher helpers.
 
-Example:
+### Text helpers
 
 ```csharp
-using JoyfulReaperLib.JRNumbers;
-using JoyfulReaperLib.JRSerialization;
 using JoyfulReaperLib.JRText;
 
 string reversed = StringHelper.Reverse("Joyful");
-string binary = BaseConverter.DecimalToBinary(42);
+bool palindrome = StringHelper.IsPalindrome("neveroddoreven");
+string? optionalValue = StringHelper.AssignNullIfEmpty("   ");
 
-byte[]? bytes = JsonByteArraySerializer.SerializeToUtf8Bytes(new
+var wrapper = new GreedyWrap(
+    lineWidth: 30,
+    wrapWordsLongerThanLineWidth: true)
 {
-    Name = "example",
-    Count = 2
-});
+    TabWidth = 4
+};
+
+string wrapped = wrapper.LineWrap(
+    "A long line of text that should be wrapped for display.");
+```
+
+`StringHelper.VowelAnalysis(...)` also returns the vowel count while reporting consonants, whitespace, numbers, and unknown characters through `out` parameters.
+
+### Collections and enums
+
+```csharp
+using JoyfulReaperLib.JRArray;
+using JoyfulReaperLib.JREnums;
+using JoyfulReaperLib.JRLists;
+
+string randomFromArray = new[] { "red", "green", "blue" }.RandomItem();
+int randomFromList = new List<int> { 10, 20, 30 }.RandomItem();
+
+DayOfWeek randomDay = EnumHelper.RandomEnumValue<DayOfWeek>();
+bool validDay = EnumHelper.EnumValueIsValid(DayOfWeek.Monday);
+(long min, long max) = EnumHelper.GetEnumMinMax<DayOfWeek>();
+```
+
+Random item selection throws when the source collection is empty.
+
+### Numbers and algorithms
+
+```csharp
+using JoyfulReaperLib.JRAlgorithms;
+using JoyfulReaperLib.JRMath;
+using JoyfulReaperLib.JRNumbers;
+
+int digits = NumberHelper.NumberOfDigits(12345);
+string binary = BaseConverter.DecimalToBinary(42);
+int decimalValue = BaseConverter.BinaryToDecimal("101010");
+
+long[] sequence = Fibonacci.FibonacciSequence(
+    first: 0,
+    second: 1,
+    term: 10);
+
+string completedNumber = Luhn.LuhnCreate("7992739871", out int checkDigit);
+bool valid = Luhn.LuhnValidate(completedNumber);
+string cardNumber = "4111111111111111";
+bool validVisa = Luhn.LuhnValidate(cardNumber, Luhn.CheckType.Visa);
+```
+
+### JSON byte-array serialization
+
+```csharp
+using JoyfulReaperLib.JRSerialization;
+
+var original = new Dictionary<string, int>
+{
+    ["apples"] = 3,
+    ["oranges"] = 2
+};
+
+byte[]? bytes = JsonByteArraySerializer.SerializeToUtf8Bytes(original);
+Dictionary<string, int>? restored =
+    JsonByteArraySerializer.DeserializeFromUtf8Bytes<Dictionary<string, int>>(bytes);
+```
+
+Null values serialize to `null`, and null or empty byte arrays deserialize to the default value for the requested type.
+
+### URL and listen-address validation
+
+```csharp
+using System.Net;
+using JoyfulReaperLib.JRNet;
+
+bool validUrl = UrlValidator.ValidateUrl("https://example.com/status");
+
+IPAddress anyAddress = IPAddressUtils.ParseListenAddress("*");
+IPAddress loopback = IPAddressUtils.ParseListenAddress("127.0.0.1");
+```
+
+`ParseListenAddress` maps `*`, `+`, and `0.0.0.0` to `IPAddress.Any`, and maps `::` to `IPAddress.IPv6Any`.
+
+### Currency helpers
+
+```csharp
+using JoyfulReaperLib.JRCurrency;
+
+List<CurrencyUnit> coins = CurrencyHelper.GetUSDCommonCoins();
+List<CurrencyUnit> change = CurrencyHelper.CalculateChange(0.41m, coins);
+
+foreach (CurrencyUnit unit in change)
+{
+    Console.WriteLine($"{unit.Quantity} {unit.PluralName}");
+}
+```
+
+`CalculateChange` uses a greedy algorithm and throws if the requested amount cannot be represented by the supplied units.
+
+### Classical ciphers
+
+```csharp
+using JoyfulReaperLib.JREncryption;
+
+string caesar = CipherHelper.CaesarEncipher("Meet at noon", key: 3);
+string original = CipherHelper.CaesarDecipher(caesar, key: 3);
+
+string vigenere = CipherHelper.VigenereCipher(
+    text: "ATTACKATDAWN",
+    key: "LEMON",
+    dir: CipherHelper.Direction.Encipher);
+```
+
+These are educational classical ciphers and are not suitable for passwords, secrets, or other security-sensitive data.
+
+### Console output
+
+```csharp
+using JoyfulReaperLib.JRConsole;
+
+ConsoleHelper.ColorWriteLine(ConsoleColor.Green, "Operation completed.");
+
+ConsoleHelper.MulticolorWriteLine(
+    new List<ConsoleColor>
+    {
+        ConsoleColor.Cyan,
+        ConsoleColor.Magenta
+    },
+    "Alternating colors");
+
+int choice = ConsoleHelper.GetValidInt(
+    prompt: "Choose a value: ",
+    min: 1,
+    max: 10);
 ```
 
 ## JoyfulReaperLib.Sqlite
