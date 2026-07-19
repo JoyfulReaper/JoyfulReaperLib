@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 
 namespace JoyfulReaperLib.MissionControl;
 
@@ -11,21 +12,20 @@ public sealed class MissionControlClient(
     ILogger<MissionControlClient> logger)
     : IMissionControlClient
 {
-    private static readonly JsonSerializerOptions JsonOptions =
-        new(JsonSerializerDefaults.Web);
-
     private readonly MissionControlClientOptions _options =
         options.Value;
 
     public async Task<bool> TryPublishAsync<TPayload>(
         string eventType,
         TPayload payload,
+        JsonTypeInfo<TPayload> payloadTypeInfo,
         DateTimeOffset occurredAt,
         string? correlationId = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(eventType);
         ArgumentNullException.ThrowIfNull(payload);
+        ArgumentNullException.ThrowIfNull(payloadTypeInfo);
 
         if (!_options.Enabled)
         {
@@ -34,13 +34,18 @@ public sealed class MissionControlClient(
 
         try
         {
-            var request = new PublishEventRequest<TPayload>(
+            JsonElement serializedPayload =
+                JsonSerializer.SerializeToElement(
+                    payload,
+                    payloadTypeInfo);
+
+            var request = new PublishEventRequest(
                 EventId: Guid.NewGuid(),
                 EventType: eventType,
                 SchemaVersion: 1,
                 OccurredAt: occurredAt,
                 CorrelationId: correlationId,
-                Payload: payload);
+                Payload: serializedPayload);
 
             using var message = new HttpRequestMessage(
                 HttpMethod.Post,
@@ -52,7 +57,8 @@ public sealed class MissionControlClient(
 
             message.Content = JsonContent.Create(
                 request,
-                options: JsonOptions);
+                MissionControlJsonContext.Default
+                    .PublishEventRequest);
 
             var client = httpClientFactory.CreateClient(
                 MissionControlClientOptions.HttpClientName);
@@ -71,10 +77,15 @@ public sealed class MissionControlClient(
                 return true;
             }
 
+            string responseBody =
+                await response.Content.ReadAsStringAsync(
+                    cancellationToken);
+
             logger.LogWarning(
-                "Mission Control rejected event {EventType} with HTTP status {StatusCode}",
+                "Mission Control rejected event {EventType} with HTTP status {StatusCode}. Response: {ResponseBody}",
                 eventType,
-                (int)response.StatusCode);
+                (int)response.StatusCode,
+                responseBody);
 
             return false;
         }
