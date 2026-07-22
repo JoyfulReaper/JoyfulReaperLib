@@ -96,7 +96,6 @@ public sealed class TcpServerHostedService<THandler, TOptions>
     }
 
     /// <inheritdoc />
-    /// <inheritdoc />
     protected override async Task ExecuteAsync(
         CancellationToken stoppingToken)
     {
