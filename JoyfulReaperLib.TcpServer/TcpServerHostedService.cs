@@ -238,39 +238,41 @@ public sealed class TcpServerHostedService<THandler, TOptions>
         DateTimeOffset acceptedAt,
         CancellationToken stoppingToken)
     {
+        TcpConnectionContext? context = null;
+
+        AsyncServiceScope scope = default;
+        bool scopeCreated = false;
+
         try
         {
-            using (client)
-            {
-                client.NoDelay = true;
+            scope = _scopeFactory.CreateAsyncScope();
+            scopeCreated = true;
 
-                EndPoint? remoteEndpoint =
-                    client.Client.RemoteEndPoint;
+            client.NoDelay = true;
 
-                EndPoint? localEndpoint =
-                    client.Client.LocalEndPoint;
+            EndPoint? remoteEndpoint =
+                client.Client.RemoteEndPoint;
 
-                await using NetworkStream stream =
-                    client.GetStream();
+            EndPoint? localEndpoint =
+                client.Client.LocalEndPoint;
 
-                await using AsyncServiceScope scope =
-                    _scopeFactory.CreateAsyncScope();
+            await using NetworkStream stream =
+                client.GetStream();
 
-                THandler handler =
-                    scope.ServiceProvider
-                        .GetRequiredService<THandler>();
+            THandler handler =
+                scope.ServiceProvider
+                    .GetRequiredService<THandler>();
 
-                var context = new TcpConnectionContext(
-                    ConnectionId: connectionId,
-                    Stream: stream,
-                    RemoteEndPoint: remoteEndpoint,
-                    LocalEndPoint: localEndpoint,
-                    AcceptedAt: acceptedAt);
+            context = new TcpConnectionContext(
+                connectionId: connectionId,
+                stream: stream,
+                remoteEndPoint: remoteEndpoint,
+                localEndPoint: localEndpoint,
+                acceptedAt: acceptedAt);
 
-                await handler.HandleAsync(
-                    context,
-                    stoppingToken);
-            }
+            await handler.HandleAsync(
+                context,
+                stoppingToken);
         }
         catch (OperationCanceledException)
             when (stoppingToken.IsCancellationRequested)
@@ -281,7 +283,41 @@ public sealed class TcpServerHostedService<THandler, TOptions>
         }
         finally
         {
+            // Closing the client also closes the underlying socket. The stream
+            // has already been disposed by its await-using declaration.
+            client.Dispose();
+
+            // The slot represents an active network connection, not ancillary
+            // work such as telemetry publishing.
             _connectionLimit.Release();
+
+            if (context is not null)
+            {
+                try
+                {
+                    await context.ExecuteAfterCloseAsync(
+                        stoppingToken);
+                }
+                catch (OperationCanceledException)
+                    when (stoppingToken.IsCancellationRequested)
+                {
+                    _logger.LogDebug(
+                        "After-close work for TCP connection {ConnectionId} was cancelled during shutdown.",
+                        connectionId);
+                }
+                catch (Exception exception)
+                {
+                    _logger.LogWarning(
+                        exception,
+                        "After-close work for TCP connection {ConnectionId} failed.",
+                        connectionId);
+                }
+            }
+
+            if (scopeCreated)
+            {
+                await scope.DisposeAsync();
+            }
         }
     }
 

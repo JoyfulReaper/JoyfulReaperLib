@@ -9,6 +9,137 @@ namespace JoyfulReaperLib.TcpServer.Tests;
 public sealed class TcpServerHostedServiceTests
 {
     [Fact]
+    public async Task AfterCloseWork_RunsAfterClientHasBeenClosed()
+    {
+        var probe = new AfterCloseProbe();
+
+        using ServiceProvider provider =
+            BuildProvider<AfterCloseHandler>(
+                services => services.AddSingleton(probe));
+
+        using TcpServerHostedService<AfterCloseHandler, TestOptions> server =
+            CreateServer<AfterCloseHandler>(
+                provider,
+                ValidOptions);
+
+        try
+        {
+            await server.StartAsync(
+                CancellationToken.None);
+
+            IPEndPoint endpoint =
+                Assert.IsType<IPEndPoint>(
+                    server.BoundEndpoint);
+
+            using var client = new TcpClient();
+
+            await client.ConnectAsync(
+                IPAddress.Loopback,
+                endpoint.Port);
+
+            await probe.AfterCloseStarted.Task.WaitAsync(
+                TimeSpan.FromSeconds(5));
+
+            NetworkStream stream =
+                client.GetStream();
+
+            byte[] buffer = new byte[1];
+
+            using var readTimeout =
+                new CancellationTokenSource(
+                    TimeSpan.FromSeconds(5));
+
+            try
+            {
+                int bytesRead =
+                    await stream.ReadAsync(
+                        buffer,
+                        readTimeout.Token);
+
+                Assert.Equal(0, bytesRead);
+            }
+            catch (IOException)
+            {
+                // A connection reset also proves that the socket was closed.
+            }
+
+            Assert.False(
+                probe.ReleaseAfterClose.Task.IsCompleted);
+        }
+        finally
+        {
+            probe.ReleaseAfterClose.TrySetResult(true);
+
+            await server.StopAsync(
+                CancellationToken.None);
+        }
+    }
+
+    [Fact]
+    public async Task AfterCloseWork_DoesNotHoldConnectionSlot()
+    {
+        var probe = new AfterCloseProbe();
+
+        TestOptions options = ValidOptions with
+        {
+            MaxConcurrentConnections = 1,
+            ConnectionLimitBehavior =
+                ConnectionLimitBehavior.Wait
+        };
+
+        using ServiceProvider provider =
+            BuildProvider<AfterCloseHandler>(
+                services => services.AddSingleton(probe));
+
+        using TcpServerHostedService<AfterCloseHandler, TestOptions> server =
+            CreateServer<AfterCloseHandler>(
+                provider,
+                options);
+
+        try
+        {
+            await server.StartAsync(
+                CancellationToken.None);
+
+            IPEndPoint endpoint =
+                Assert.IsType<IPEndPoint>(
+                    server.BoundEndpoint);
+
+            using var firstClient = new TcpClient();
+
+            await firstClient.ConnectAsync(
+                IPAddress.Loopback,
+                endpoint.Port);
+
+            await probe.AfterCloseStarted.Task.WaitAsync(
+                TimeSpan.FromSeconds(5));
+
+            Assert.False(
+                probe.ReleaseAfterClose.Task.IsCompleted);
+
+            using var secondClient = new TcpClient();
+
+            await secondClient.ConnectAsync(
+                IPAddress.Loopback,
+                endpoint.Port);
+
+            await probe.SecondConnectionHandled.Task.WaitAsync(
+                TimeSpan.FromSeconds(5));
+
+            Assert.Equal(
+                2,
+                Volatile.Read(ref probe.InvocationCount));
+        }
+        finally
+        {
+            probe.ReleaseAfterClose.TrySetResult(true);
+
+            await server.StopAsync(
+                CancellationToken.None);
+        }
+    }
+
+    [Fact]
     public void Constructor_RejectsEmptyListenAddress()
     {
         var options = ValidOptions with
@@ -397,6 +528,61 @@ public sealed class TcpServerHostedServiceTests
                 probe.Finished.TrySetResult(
                     cancellationToken.IsCancellationRequested);
             }
+        }
+    }
+
+    private sealed class AfterCloseProbe
+    {
+        public TaskCompletionSource<bool> AfterCloseStarted
+        { get; } =
+            new(
+                TaskCreationOptions.RunContinuationsAsynchronously);
+
+        public TaskCompletionSource<bool> ReleaseAfterClose
+        { get; } =
+            new(
+                TaskCreationOptions.RunContinuationsAsynchronously);
+
+        public TaskCompletionSource<bool> SecondConnectionHandled
+        { get; } =
+            new(
+                TaskCreationOptions.RunContinuationsAsynchronously);
+
+        public int InvocationCount;
+
+        public async ValueTask WaitForReleaseAsync(
+            CancellationToken cancellationToken)
+        {
+            AfterCloseStarted.TrySetResult(true);
+
+            await ReleaseAfterClose.Task.WaitAsync(
+                cancellationToken);
+        }
+    }
+
+    private sealed class AfterCloseHandler(
+        AfterCloseProbe probe)
+        : ITcpConnectionHandler
+    {
+        public ValueTask HandleAsync(
+            TcpConnectionContext context,
+            CancellationToken cancellationToken)
+        {
+            int invocation =
+                Interlocked.Increment(
+                    ref probe.InvocationCount);
+
+            if (invocation == 1)
+            {
+                context.RegisterAfterClose(
+                    probe.WaitForReleaseAsync);
+            }
+            else if (invocation == 2)
+            {
+                probe.SecondConnectionHandled.TrySetResult(true);
+            }
+
+            return ValueTask.CompletedTask;
         }
     }
 }
