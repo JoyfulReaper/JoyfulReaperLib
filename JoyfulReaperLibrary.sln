@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.7.11925.98
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JoyfulReaperLib", "JoyfulReaperLibrary\JoyfulReaperLib.csproj", "{996E32D8-0CCF-4794-A962-52943BF0033E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JoyfulReaperLib", "JoyfulReaperLib\JoyfulReaperLib.csproj", "{996E32D8-0CCF-4794-A962-52943BF0033E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JoyfulReaperLib.Tests", "JoyfulReaperLibTests\JoyfulReaperLib.Tests.csproj", "{95BDE67A-4DDA-4A85-903E-C83D26800312}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JoyfulReaperLib.Tests", "JoyfulReaperLib.Tests\JoyfulReaperLib.Tests.csproj", "{95BDE67A-4DDA-4A85-903E-C83D26800312}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JoyfulReaperLib.Caching.Sqlite", "JoyfulReaperLib.Caching.Sqlite\JoyfulReaperLib.Caching.Sqlite.csproj", "{8CE96005-8896-4184-B1F1-B250C2D001B2}"
 EndProject
@@ -22,6 +22,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JoyfulReaperLib.Ntfy", "JoyfulReaperLib.Ntfy\JoyfulReaperLib.Ntfy.csproj", "{F807BFD9-7B79-4FC9-B888-A39C8129869F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JoyfulReaperLib.Ntfy.Tests", "JoyfulReaperLib.Ntfy.Tests\JoyfulReaperLib.Ntfy.Tests.csproj", "{42C35554-2588-4F58-87AB-95717F629C9C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JoyfulReaperLib.TcpServer", "JoyfulReaperLib.TcpServer\JoyfulReaperLib.TcpServer.csproj", "{C21041DF-D37F-43C7-87CD-FE943CE5FA76}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JoyfulReaperLib.TcpServer.Tests", "JoyfulReaperLib.TcpServer.Tests\JoyfulReaperLib.TcpServer.Tests.csproj", "{BBF58211-BA7F-412A-8369-A1BB76497232}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -153,6 +157,30 @@ Global
 		{42C35554-2588-4F58-87AB-95717F629C9C}.Release|x64.Build.0 = Release|Any CPU
 		{42C35554-2588-4F58-87AB-95717F629C9C}.Release|x86.ActiveCfg = Release|Any CPU
 		{42C35554-2588-4F58-87AB-95717F629C9C}.Release|x86.Build.0 = Release|Any CPU
+		{C21041DF-D37F-43C7-87CD-FE943CE5FA76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C21041DF-D37F-43C7-87CD-FE943CE5FA76}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C21041DF-D37F-43C7-87CD-FE943CE5FA76}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C21041DF-D37F-43C7-87CD-FE943CE5FA76}.Debug|x64.Build.0 = Debug|Any CPU
+		{C21041DF-D37F-43C7-87CD-FE943CE5FA76}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C21041DF-D37F-43C7-87CD-FE943CE5FA76}.Debug|x86.Build.0 = Debug|Any CPU
+		{C21041DF-D37F-43C7-87CD-FE943CE5FA76}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C21041DF-D37F-43C7-87CD-FE943CE5FA76}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C21041DF-D37F-43C7-87CD-FE943CE5FA76}.Release|x64.ActiveCfg = Release|Any CPU
+		{C21041DF-D37F-43C7-87CD-FE943CE5FA76}.Release|x64.Build.0 = Release|Any CPU
+		{C21041DF-D37F-43C7-87CD-FE943CE5FA76}.Release|x86.ActiveCfg = Release|Any CPU
+		{C21041DF-D37F-43C7-87CD-FE943CE5FA76}.Release|x86.Build.0 = Release|Any CPU
+		{BBF58211-BA7F-412A-8369-A1BB76497232}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BBF58211-BA7F-412A-8369-A1BB76497232}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BBF58211-BA7F-412A-8369-A1BB76497232}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{BBF58211-BA7F-412A-8369-A1BB76497232}.Debug|x64.Build.0 = Debug|Any CPU
+		{BBF58211-BA7F-412A-8369-A1BB76497232}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{BBF58211-BA7F-412A-8369-A1BB76497232}.Debug|x86.Build.0 = Debug|Any CPU
+		{BBF58211-BA7F-412A-8369-A1BB76497232}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BBF58211-BA7F-412A-8369-A1BB76497232}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BBF58211-BA7F-412A-8369-A1BB76497232}.Release|x64.ActiveCfg = Release|Any CPU
+		{BBF58211-BA7F-412A-8369-A1BB76497232}.Release|x64.Build.0 = Release|Any CPU
+		{BBF58211-BA7F-412A-8369-A1BB76497232}.Release|x86.ActiveCfg = Release|Any CPU
+		{BBF58211-BA7F-412A-8369-A1BB76497232}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

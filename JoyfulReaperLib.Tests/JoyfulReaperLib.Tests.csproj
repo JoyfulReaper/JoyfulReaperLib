@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\JoyfulReaperLibrary\JoyfulReaperLib.csproj" />
+    <ProjectReference Include="..\JoyfulReaperLib\JoyfulReaperLib.csproj" />
   </ItemGroup>
 
 </Project>
