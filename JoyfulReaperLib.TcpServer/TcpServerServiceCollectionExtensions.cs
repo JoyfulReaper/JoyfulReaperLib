@@ -11,17 +11,14 @@ public static class TcpServerServiceCollectionExtensions
     /// <summary>
     /// Registers a protocol connection handler and its hosted TCP server.
     /// </summary>
-    public static IServiceCollection AddTcpServer<THandler, TOptions>(
-        this IServiceCollection services)
+    public static IServiceCollection AddTcpServer<THandler, TOptions>(this IServiceCollection services)
         where THandler : class, ITcpConnectionHandler
         where TOptions : class, ITcpServerOptions
     {
         ArgumentNullException.ThrowIfNull(services);
 
         services.TryAddScoped<THandler>();
-
-        services.AddHostedService<
-            TcpServerHostedService<THandler, TOptions>>();
+        services.AddHostedService<TcpServerHostedService<THandler, TOptions>>();
 
         return services;
     }

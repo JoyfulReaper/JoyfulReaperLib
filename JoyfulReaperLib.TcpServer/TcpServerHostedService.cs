@@ -13,8 +13,7 @@ namespace JoyfulReaperLib.TcpServer;
 /// Hosts a bounded TCP listener and dispatches accepted connections to a
 /// protocol-specific connection handler.
 /// </summary>
-public sealed class TcpServerHostedService<THandler, TOptions>
-    : BackgroundService
+public sealed class TcpServerHostedService<THandler, TOptions> : BackgroundService
     where THandler : class, ITcpConnectionHandler
     where TOptions : class, ITcpServerOptions
 {
@@ -59,21 +58,16 @@ public sealed class TcpServerHostedService<THandler, TOptions>
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        IPAddress listenAddress =
-            IPAddressUtils.ParseListenAddress(
-                _options.ListenAddress);
+        IPAddress listenAddress = IPAddressUtils.ParseListenAddress(_options.ListenAddress);
 
-        var listener = new TcpListener(
-            listenAddress,
-            _options.Port);
+        var listener = new TcpListener(listenAddress, _options.Port);
 
         try
         {
             listener.Start();
 
             _listener = listener;
-            BoundEndpoint =
-                (IPEndPoint)listener.LocalEndpoint;
+            BoundEndpoint = (IPEndPoint)listener.LocalEndpoint;
 
             _logger.LogInformation(
                 "TCP server for {HandlerType} started on {Address}:{Port}.",
@@ -81,8 +75,7 @@ public sealed class TcpServerHostedService<THandler, TOptions>
                 BoundEndpoint.Address,
                 BoundEndpoint.Port);
 
-            await base.StartAsync(
-                cancellationToken);
+            await base.StartAsync(cancellationToken);
         }
         catch
         {
@@ -100,35 +93,29 @@ public sealed class TcpServerHostedService<THandler, TOptions>
         CancellationToken stoppingToken)
     {
         TcpListener listener =
-            _listener ??
-            throw new InvalidOperationException(
-                "The TCP listener was not initialized before execution.");
+            _listener ?? throw new InvalidOperationException("The TCP listener was not initialized before execution.");
 
         try
         {
-            while (!_stopRequested &&
-                   !stoppingToken.IsCancellationRequested)
+            while (!_stopRequested && !stoppingToken.IsCancellationRequested)
             {
                 TcpClient? client = null;
                 bool permitAcquired = false;
 
                 try
                 {
-                    if (_options.ConnectionLimitBehavior is
-                        ConnectionLimitBehavior.Wait)
+                    if (_options.ConnectionLimitBehavior is ConnectionLimitBehavior.Wait)
                     {
                         // Allow the operating system's listen backlog to hold
                         // pending connections until the application has room.
                         await _connectionLimit.WaitAsync(stoppingToken);
                         permitAcquired = true;
 
-                        client = await listener.AcceptTcpClientAsync(
-                            stoppingToken);
+                        client = await listener.AcceptTcpClientAsync(stoppingToken);
                     }
                     else
                     {
-                        client = await listener.AcceptTcpClientAsync(
-                            stoppingToken);
+                        client = await listener.AcceptTcpClientAsync(stoppingToken);
 
                         permitAcquired = _connectionLimit.Wait(0);
 
@@ -146,11 +133,9 @@ public sealed class TcpServerHostedService<THandler, TOptions>
                         }
                     }
 
-                    long connectionId =
-                        Interlocked.Increment(ref _nextConnectionId);
+                    long connectionId = Interlocked.Increment(ref _nextConnectionId);
 
-                    DateTimeOffset acceptedAt =
-                        DateTimeOffset.UtcNow;
+                    DateTimeOffset acceptedAt = DateTimeOffset.UtcNow;
 
                     Task connectionTask = HandleClientAsync(
                         connectionId,
@@ -161,13 +146,9 @@ public sealed class TcpServerHostedService<THandler, TOptions>
                     client = null;
                     permitAcquired = false;
 
-                    TrackConnection(
-                        connectionId,
-                        connectionTask);
+                    TrackConnection(connectionId, connectionTask);
                 }
-                catch (OperationCanceledException)
-                    when (stoppingToken.IsCancellationRequested ||
-                          _stopRequested)
+                catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested || _stopRequested)
                 {
                     client?.Dispose();
 
@@ -179,8 +160,7 @@ public sealed class TcpServerHostedService<THandler, TOptions>
                     break;
                 }
                 catch (SocketException)
-                    when (stoppingToken.IsCancellationRequested ||
-                          _stopRequested)
+                    when (stoppingToken.IsCancellationRequested || _stopRequested)
                 {
                     client?.Dispose();
 
@@ -192,8 +172,7 @@ public sealed class TcpServerHostedService<THandler, TOptions>
                     break;
                 }
                 catch (ObjectDisposedException)
-                    when (stoppingToken.IsCancellationRequested ||
-                          _stopRequested)
+                    when (stoppingToken.IsCancellationRequested || _stopRequested)
                 {
                     client?.Dispose();
 
@@ -250,18 +229,13 @@ public sealed class TcpServerHostedService<THandler, TOptions>
 
             client.NoDelay = true;
 
-            EndPoint? remoteEndpoint =
-                client.Client.RemoteEndPoint;
+            EndPoint? remoteEndpoint = client.Client.RemoteEndPoint;
+            EndPoint? localEndpoint = client.Client.LocalEndPoint;
 
-            EndPoint? localEndpoint =
-                client.Client.LocalEndPoint;
+            await using NetworkStream stream = client.GetStream();
 
-            await using NetworkStream stream =
-                client.GetStream();
-
-            THandler handler =
-                scope.ServiceProvider
-                    .GetRequiredService<THandler>();
+            THandler handler = scope.ServiceProvider
+                .GetRequiredService<THandler>();
 
             context = new TcpConnectionContext(
                 connectionId: connectionId,
@@ -270,9 +244,7 @@ public sealed class TcpServerHostedService<THandler, TOptions>
                 localEndPoint: localEndpoint,
                 acceptedAt: acceptedAt);
 
-            await handler.HandleAsync(
-                context,
-                stoppingToken);
+            await handler.HandleAsync(context, stoppingToken);
         }
         catch (OperationCanceledException)
             when (stoppingToken.IsCancellationRequested)
@@ -295,8 +267,7 @@ public sealed class TcpServerHostedService<THandler, TOptions>
             {
                 try
                 {
-                    await context.ExecuteAfterCloseAsync(
-                        stoppingToken);
+                    await context.ExecuteAfterCloseAsync(stoppingToken);
                 }
                 catch (OperationCanceledException)
                     when (stoppingToken.IsCancellationRequested)
@@ -325,15 +296,11 @@ public sealed class TcpServerHostedService<THandler, TOptions>
         long connectionId,
         Task connectionTask)
     {
-        _activeConnections[connectionId] =
-            connectionTask;
+        _activeConnections[connectionId] = connectionTask;
 
-        _ = connectionTask.ContinueWith(
-            completedTask =>
+        _ = connectionTask.ContinueWith(completedTask =>
             {
-                _activeConnections.TryRemove(
-                    connectionId,
-                    out _);
+                _activeConnections.TryRemove(connectionId, out _);
 
                 if (completedTask.IsFaulted)
                 {
@@ -351,8 +318,7 @@ public sealed class TcpServerHostedService<THandler, TOptions>
 
     private async Task DrainConnectionsAsync()
     {
-        Task[] remainingConnections =
-            _activeConnections.Values.ToArray();
+        Task[] remainingConnections = _activeConnections.Values.ToArray();
 
         if (remainingConnections.Length == 0)
         {
@@ -384,28 +350,22 @@ public sealed class TcpServerHostedService<THandler, TOptions>
     {
         if (string.IsNullOrWhiteSpace(options.ListenAddress))
         {
-            throw new InvalidOperationException(
-                "The TCP listen address must not be empty.");
+            throw new InvalidOperationException("The TCP listen address must not be empty.");
         }
 
         if (options.Port is < 0 or > 65535)
         {
-            throw new InvalidOperationException(
-                "The TCP port must be between 0 and 65535.");
+            throw new InvalidOperationException("The TCP port must be between 0 and 65535.");
         }
 
         if (options.MaxConcurrentConnections <= 0)
         {
-            throw new InvalidOperationException(
-                "The maximum concurrent connection count must be positive.");
+            throw new InvalidOperationException("The maximum concurrent connection count must be positive.");
         }
 
-        if (!Enum.IsDefined(
-                typeof(ConnectionLimitBehavior),
-                options.ConnectionLimitBehavior))
+        if (!Enum.IsDefined(typeof(ConnectionLimitBehavior), options.ConnectionLimitBehavior))
         {
-            throw new InvalidOperationException(
-                "The configured connection-limit behavior is invalid.");
+            throw new InvalidOperationException("The configured connection-limit behavior is invalid.");
         }
     }
 }

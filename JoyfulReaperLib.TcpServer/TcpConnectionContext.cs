@@ -49,10 +49,7 @@ public sealed class TcpConnectionContext
     {
         ArgumentNullException.ThrowIfNull(callback);
 
-        if (Interlocked.CompareExchange(
-                ref _afterClose,
-                callback,
-                null) is not null)
+        if (Interlocked.CompareExchange(ref _afterClose, callback, null) is not null)
         {
             throw new InvalidOperationException(
                 "After-close work has already been registered for this connection.");
@@ -62,8 +59,7 @@ public sealed class TcpConnectionContext
     internal ValueTask ExecuteAfterCloseAsync(
         CancellationToken cancellationToken)
     {
-        Func<CancellationToken, ValueTask>? callback =
-            Volatile.Read(ref _afterClose);
+        Func<CancellationToken, ValueTask>? callback = Volatile.Read(ref _afterClose);
 
         return callback is null
             ? ValueTask.CompletedTask
