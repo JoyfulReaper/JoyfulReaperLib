@@ -1,4 +1,6 @@
-﻿namespace JoyfulReaperLib.MissionControl;
+﻿using System.Text.Json.Serialization.Metadata;
+
+namespace JoyfulReaperLib.MissionControl;
 
 public sealed class NullMissionControlClient
     : IMissionControlClient
@@ -10,12 +12,7 @@ public sealed class NullMissionControlClient
     {
     }
 
-    public Task<bool> TryPublishAsync<TPayload>(
-        string eventType,
-        TPayload payload,
-        DateTimeOffset occurredAt,
-        string? correlationId = null,
-        CancellationToken cancellationToken = default)
+    public Task<bool> TryPublishAsync<TPayload>(string eventType, TPayload payload, JsonTypeInfo<TPayload> payloadTypeInfo, DateTimeOffset occurredAt, string? correlationId = null, CancellationToken cancellationToken = default)
     {
         return Task.FromResult(false);
     }

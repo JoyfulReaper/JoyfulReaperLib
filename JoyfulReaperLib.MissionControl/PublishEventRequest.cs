@@ -1,9 +1,11 @@
-﻿namespace JoyfulReaperLib.MissionControl;
+﻿using System.Text.Json;
 
-internal sealed record PublishEventRequest<TPayload>(
+namespace JoyfulReaperLib.MissionControl;
+
+internal sealed record PublishEventRequest(
     Guid EventId,
     string EventType,
     int SchemaVersion,
     DateTimeOffset OccurredAt,
     string? CorrelationId,
-    TPayload Payload);
+    JsonElement Payload);
