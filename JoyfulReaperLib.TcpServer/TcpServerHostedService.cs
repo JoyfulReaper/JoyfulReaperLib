@@ -59,7 +59,6 @@ public sealed class TcpServerHostedService<THandler, TOptions> : BackgroundServi
         cancellationToken.ThrowIfCancellationRequested();
 
         IPAddress listenAddress = IPAddressUtils.ParseListenAddress(_options.ListenAddress);
-
         var listener = new TcpListener(listenAddress, _options.Port);
 
         try
@@ -116,7 +115,6 @@ public sealed class TcpServerHostedService<THandler, TOptions> : BackgroundServi
                     else
                     {
                         client = await listener.AcceptTcpClientAsync(stoppingToken);
-
                         permitAcquired = _connectionLimit.Wait(0);
 
                         if (!permitAcquired)

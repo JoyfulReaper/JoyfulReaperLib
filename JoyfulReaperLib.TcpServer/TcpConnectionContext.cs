@@ -27,13 +27,9 @@ public sealed class TcpConnectionContext
     }
 
     public long ConnectionId { get; }
-
     public Stream Stream { get; }
-
     public EndPoint? RemoteEndPoint { get; }
-
     public EndPoint? LocalEndPoint { get; }
-
     public DateTimeOffset AcceptedAt { get; }
 
     /// <summary>
@@ -51,8 +47,7 @@ public sealed class TcpConnectionContext
 
         if (Interlocked.CompareExchange(ref _afterClose, callback, null) is not null)
         {
-            throw new InvalidOperationException(
-                "After-close work has already been registered for this connection.");
+            throw new InvalidOperationException("After-close work has already been registered for this connection.");
         }
     }
 
