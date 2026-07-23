@@ -1,4 +1,10 @@
-﻿using System.Net;
+﻿/*
+ * JoyfulReaperLibrary
+ * Copyright (c) 2026 Kyle Givler
+ * Licensed under the MIT License.
+ */
+
+using System.Net;
 
 namespace JoyfulReaperLib.TcpServer;
 

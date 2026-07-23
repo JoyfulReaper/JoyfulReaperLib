@@ -1,4 +1,10 @@
-﻿using JoyfulReaperLib.JRNet;
+﻿/*
+ * JoyfulReaperLibrary
+ * Copyright (c) 2026 Kyle Givler
+ * Licensed under the MIT License.
+ */
+
+using JoyfulReaperLib.JRNet;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;

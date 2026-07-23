@@ -1,4 +1,10 @@
-﻿namespace JoyfulReaperLib.TcpServer;
+﻿/*
+ * JoyfulReaperLibrary
+ * Copyright (c) 2026 Kyle Givler
+ * Licensed under the MIT License.
+ */
+
+namespace JoyfulReaperLib.TcpServer;
 
 /// <summary>
 /// Handles one accepted TCP connection.
