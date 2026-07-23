@@ -10,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Sockets;
 
@@ -19,7 +20,10 @@ namespace JoyfulReaperLib.TcpServer;
 /// Hosts a bounded TCP listener and dispatches accepted connections to a
 /// protocol-specific connection handler.
 /// </summary>
-public sealed class TcpServerHostedService<THandler, TOptions> : BackgroundService
+public sealed class TcpServerHostedService<
+    THandler,
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] TOptions>
+    : BackgroundService
     where THandler : class, ITcpConnectionHandler
     where TOptions : class, ITcpServerOptions
 {

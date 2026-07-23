@@ -16,7 +16,8 @@ public static class TcpServerServiceCollectionExtensions
     /// Registers a protocol connection handler and its hosted TCP server.
     /// </summary>
     public static IServiceCollection AddTcpServer<
-            [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] THandler, TOptions>(
+            [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] THandler,
+            [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] TOptions>(
             this IServiceCollection services)
         where THandler : class, ITcpConnectionHandler
         where TOptions : class, ITcpServerOptions

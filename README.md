@@ -1,6 +1,6 @@
 # JoyfulReaperLib
 
-A collection of lightweight .NET helpers and optional packages for SQLite storage, web statistics, Mission Control events, and ntfy notifications.
+A collection of lightweight .NET helpers and optional packages for SQLite storage, web statistics, hosted TCP servers, Mission Control events, and ntfy notifications.
 
 > [!IMPORTANT]
 > These packages are not currently published to NuGet.org. The package names below identify the projects and their intended package IDs, but `dotnet add package` will not install them from the public NuGet feed yet.
@@ -13,20 +13,22 @@ A collection of lightweight .NET helpers and optional packages for SQLite storag
 | `JoyfulReaperLib.Sqlite` | Shared SQLite provider initialization, database initialization, and connection-string path handling. |
 | `JoyfulReaperLib.Caching.Sqlite` | A SQLite-backed implementation of `IDistributedCache`. |
 | `JoyfulReaperLib.WebStats.Sqlite` | SQLite-backed hit counting and unique-visitor statistics. |
+| `JoyfulReaperLib.TcpServer` | Generic Host infrastructure for bounded, dependency-injected TCP servers. |
 | `JoyfulReaperLib.MissionControl` | A best-effort HTTP client for publishing application events to Mission Control. |
 | `JoyfulReaperLib.Ntfy` | An HTTP client for publishing notifications to hosted or self-hosted ntfy servers. |
 
-`JoyfulReaperLib` is the lightweight base package. SQLite features, Mission Control integration, and ntfy support live in separate optional packages so applications only take the dependencies they need.
+`JoyfulReaperLib` is the lightweight base package. SQLite features, TCP server hosting, Mission Control integration, and ntfy support live in separate optional packages so applications only take the dependencies they need.
 
 ## Using the projects locally
 
 Clone this repository and add project references from your application to the projects it uses. Replace `path/to/YourApp.csproj` with your application's project path:
 
 ```bash
-dotnet add path/to/YourApp.csproj reference JoyfulReaperLibrary/JoyfulReaperLib.csproj
+dotnet add path/to/YourApp.csproj reference JoyfulReaperLib/JoyfulReaperLib.csproj
 dotnet add path/to/YourApp.csproj reference JoyfulReaperLib.Sqlite/JoyfulReaperLib.Sqlite.csproj
 dotnet add path/to/YourApp.csproj reference JoyfulReaperLib.Caching.Sqlite/JoyfulReaperLib.Caching.Sqlite.csproj
 dotnet add path/to/YourApp.csproj reference JoyfulReaperLib.WebStats.Sqlite/JoyfulReaperLib.WebStats.Sqlite.csproj
+dotnet add path/to/YourApp.csproj reference JoyfulReaperLib.TcpServer/JoyfulReaperLib.TcpServer.csproj
 dotnet add path/to/YourApp.csproj reference JoyfulReaperLib.MissionControl/JoyfulReaperLib.MissionControl.csproj
 dotnet add path/to/YourApp.csproj reference JoyfulReaperLib.Ntfy/JoyfulReaperLib.Ntfy.csproj
 ```
@@ -276,6 +278,57 @@ HitCountStats current = await hitCounter.GetHitCountsAsync(cancellationToken);
 ```
 
 The application chooses the visitor key. Avoid storing personal information unless your application's privacy requirements allow it.
+
+## JoyfulReaperLib.TcpServer
+
+This package hosts a bounded TCP listener in a .NET Generic Host. Each accepted connection is handled in its own dependency-injection scope by an `ITcpConnectionHandler`.
+
+Define an options type and connection handler:
+
+```csharp
+using JoyfulReaperLib.TcpServer;
+
+public sealed class EchoServerOptions : ITcpServerOptions
+{
+    public string ListenAddress { get; init; } = "127.0.0.1";
+    public int Port { get; init; } = 7000;
+    public int MaxConcurrentConnections { get; init; } = 20;
+    public ConnectionLimitBehavior ConnectionLimitBehavior { get; init; } =
+        ConnectionLimitBehavior.Wait;
+}
+
+public sealed class EchoConnectionHandler : ITcpConnectionHandler
+{
+    public async ValueTask HandleAsync(
+        TcpConnectionContext context,
+        CancellationToken cancellationToken)
+    {
+        byte[] buffer = new byte[4096];
+        int bytesRead;
+
+        while ((bytesRead = await context.Stream.ReadAsync(
+            buffer,
+            cancellationToken)) > 0)
+        {
+            await context.Stream.WriteAsync(
+                buffer.AsMemory(0, bytesRead),
+                cancellationToken);
+        }
+    }
+}
+```
+
+Register the options and server with the host:
+
+```csharp
+builder.Services
+    .AddOptions<EchoServerOptions>()
+    .Bind(builder.Configuration.GetSection("EchoServer"));
+
+builder.Services.AddTcpServer<EchoConnectionHandler, EchoServerOptions>();
+```
+
+Set `ConnectionLimitBehavior` to `Wait` to delay accepting another connection until capacity is available, or `Reject` to accept and immediately close excess connections.
 
 ## JoyfulReaperLib.MissionControl
 
