@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using System.Net;
 using System.Net.Sockets;
+using Xunit.Sdk;
 
 namespace JoyfulReaperLib.TcpServer.Tests;
 
@@ -283,10 +284,7 @@ public sealed class TcpServerHostedServiceTests
     [Fact]
     public async Task Ipv6OnlyListener_AcceptsIpv6LoopbackConnection()
     {
-        if (!Socket.OSSupportsIPv6)
-        {
-            return;
-        }
+        RequireIpv6BindCapability(dualMode: false);
 
         var probe = new ConnectionProbe();
         TestOptions options = ValidOptions with
@@ -326,10 +324,7 @@ public sealed class TcpServerHostedServiceTests
     [Fact]
     public async Task DualModeListener_AcceptsIpv4AndIpv6Connections()
     {
-        if (!Socket.OSSupportsIPv6)
-        {
-            return;
-        }
+        RequireIpv6BindCapability(dualMode: true);
 
         var probe = new MultipleConnectionProbe(expectedConnections: 2);
         TestOptions options = ValidOptions with
@@ -566,6 +561,40 @@ public sealed class TcpServerHostedServiceTests
             ConnectionLimitBehavior =
                 ConnectionLimitBehavior.Wait
         };
+
+    private static void RequireIpv6BindCapability(
+        bool dualMode)
+    {
+        string capability = dualMode
+            ? "IPv6 wildcard dual-mode binding"
+            : "IPv6 wildcard binding";
+
+        try
+        {
+            using var socket = new Socket(
+                AddressFamily.InterNetworkV6,
+                SocketType.Stream,
+                ProtocolType.Tcp);
+
+            socket.DualMode = dualMode;
+            socket.Bind(new IPEndPoint(IPAddress.IPv6Any, 0));
+        }
+        catch (PlatformNotSupportedException exception)
+        {
+            throw SkipException.ForSkip(
+                $"{capability} is unavailable: {exception.Message}");
+        }
+        catch (NotSupportedException exception)
+        {
+            throw SkipException.ForSkip(
+                $"{capability} is unavailable: {exception.Message}");
+        }
+        catch (SocketException exception)
+        {
+            throw SkipException.ForSkip(
+                $"{capability} is unavailable: {exception.Message}");
+        }
+    }
 
     private sealed record TestOptions
         : ITcpServerOptions
