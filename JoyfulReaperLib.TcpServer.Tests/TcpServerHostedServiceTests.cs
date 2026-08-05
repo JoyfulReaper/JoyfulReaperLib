@@ -31,7 +31,7 @@ public sealed class TcpServerHostedServiceTests
                 Assert.IsType<IPEndPoint>(
                     server.BoundEndpoint);
 
-            using var client = new TcpClient();
+            using var client = new TcpClient(AddressFamily.InterNetwork);
 
             await client.ConnectAsync(
                 IPAddress.Loopback,
@@ -105,7 +105,7 @@ public sealed class TcpServerHostedServiceTests
                 Assert.IsType<IPEndPoint>(
                     server.BoundEndpoint);
 
-            using var firstClient = new TcpClient();
+            using var firstClient = new TcpClient(AddressFamily.InterNetwork);
 
             await firstClient.ConnectAsync(
                 IPAddress.Loopback,
@@ -117,7 +117,7 @@ public sealed class TcpServerHostedServiceTests
             Assert.False(
                 probe.ReleaseAfterClose.Task.IsCompleted);
 
-            using var secondClient = new TcpClient();
+            using var secondClient = new TcpClient(AddressFamily.InterNetwork);
 
             await secondClient.ConnectAsync(
                 IPAddress.Loopback,
@@ -241,7 +241,7 @@ public sealed class TcpServerHostedServiceTests
                 Assert.IsType<IPEndPoint>(
                     server.BoundEndpoint);
 
-            using var client = new TcpClient();
+            using var client = new TcpClient(AddressFamily.InterNetwork);
 
             await client.ConnectAsync(
                 IPAddress.Loopback,
@@ -267,6 +267,138 @@ public sealed class TcpServerHostedServiceTests
     }
 
     [Fact]
+    public void OptionsWithoutDualModeOverride_DefaultsToFalse()
+    {
+        ITcpServerOptions options = new LegacyOptions
+        {
+            ListenAddress = "127.0.0.1",
+            Port = 0,
+            MaxConcurrentConnections = 4,
+            ConnectionLimitBehavior = ConnectionLimitBehavior.Wait
+        };
+
+        Assert.False(options.DualMode);
+    }
+
+    [Fact]
+    public async Task Ipv6OnlyListener_AcceptsIpv6LoopbackConnection()
+    {
+        if (!Socket.OSSupportsIPv6)
+        {
+            return;
+        }
+
+        var probe = new ConnectionProbe();
+        TestOptions options = ValidOptions with
+        {
+            ListenAddress = "::"
+        };
+
+        using ServiceProvider provider =
+            BuildProvider<RecordingHandler>(
+                services => services.AddSingleton(probe));
+
+        using TcpServerHostedService<RecordingHandler, TestOptions> server =
+            CreateServer<RecordingHandler>(
+                provider,
+                options);
+
+        try
+        {
+            await server.StartAsync(CancellationToken.None);
+
+            IPEndPoint endpoint = Assert.IsType<IPEndPoint>(server.BoundEndpoint);
+            using var client = new TcpClient(AddressFamily.InterNetworkV6);
+
+            await client.ConnectAsync(IPAddress.IPv6Loopback, endpoint.Port);
+
+            ObservedConnection observed = await probe.Accepted.Task.WaitAsync(
+                TimeSpan.FromSeconds(5));
+
+            Assert.Equal(AddressFamily.InterNetworkV6, observed.LocalEndpoint.AddressFamily);
+        }
+        finally
+        {
+            await server.StopAsync(CancellationToken.None);
+        }
+    }
+
+    [Fact]
+    public async Task DualModeListener_AcceptsIpv4AndIpv6Connections()
+    {
+        if (!Socket.OSSupportsIPv6)
+        {
+            return;
+        }
+
+        var probe = new MultipleConnectionProbe(expectedConnections: 2);
+        TestOptions options = ValidOptions with
+        {
+            ListenAddress = "::",
+            DualMode = true
+        };
+
+        using ServiceProvider provider =
+            BuildProvider<MultipleConnectionRecordingHandler>(
+                services => services.AddSingleton(probe));
+
+        using TcpServerHostedService<MultipleConnectionRecordingHandler, TestOptions> server =
+            CreateServer<MultipleConnectionRecordingHandler>(
+                provider,
+                options);
+
+        try
+        {
+            await server.StartAsync(CancellationToken.None);
+
+            IPEndPoint endpoint = Assert.IsType<IPEndPoint>(server.BoundEndpoint);
+            using var ipv4Client = new TcpClient(AddressFamily.InterNetwork);
+            using var ipv6Client = new TcpClient(AddressFamily.InterNetworkV6);
+
+            await ipv4Client.ConnectAsync(IPAddress.Loopback, endpoint.Port);
+            await ipv6Client.ConnectAsync(IPAddress.IPv6Loopback, endpoint.Port);
+
+            AddressFamily[] addressFamilies = await probe.AllAccepted.Task.WaitAsync(
+                TimeSpan.FromSeconds(5));
+
+            Assert.Equal(2, addressFamilies.Length);
+            Assert.All(addressFamilies, family =>
+                Assert.Equal(AddressFamily.InterNetworkV6, family));
+        }
+        finally
+        {
+            await server.StopAsync(CancellationToken.None);
+        }
+    }
+
+    [Theory]
+    [InlineData("127.0.0.1")]
+    [InlineData("0.0.0.0")]
+    [InlineData("::1")]
+    public async Task StartAsync_RejectsDualModeWithoutIpv6Wildcard(
+        string listenAddress)
+    {
+        TestOptions options = ValidOptions with
+        {
+            ListenAddress = listenAddress,
+            DualMode = true
+        };
+
+        using ServiceProvider provider =
+            BuildProvider<RecordingHandler>(
+                services => services.AddSingleton(new ConnectionProbe()));
+
+        using TcpServerHostedService<RecordingHandler, TestOptions> server =
+            CreateServer<RecordingHandler>(provider, options);
+
+        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => server.StartAsync(CancellationToken.None));
+
+        Assert.Contains("requires ListenAddress", exception.Message);
+        Assert.Contains("::", exception.Message);
+    }
+
+    [Fact]
     public async Task StopAsync_CancelsAndDrainsActiveHandler()
     {
         var probe = new BlockingProbe();
@@ -287,7 +419,7 @@ public sealed class TcpServerHostedServiceTests
             Assert.IsType<IPEndPoint>(
                 server.BoundEndpoint);
 
-        using var client = new TcpClient();
+        using var client = new TcpClient(AddressFamily.InterNetwork);
 
         await client.ConnectAsync(
             IPAddress.Loopback,
@@ -341,7 +473,7 @@ public sealed class TcpServerHostedServiceTests
                     server.BoundEndpoint);
 
             using var firstClient =
-                new TcpClient();
+                new TcpClient(AddressFamily.InterNetwork);
 
             await firstClient.ConnectAsync(
                 IPAddress.Loopback,
@@ -351,7 +483,7 @@ public sealed class TcpServerHostedServiceTests
                 TimeSpan.FromSeconds(5));
 
             using var secondClient =
-                new TcpClient();
+                new TcpClient(AddressFamily.InterNetwork);
 
             await secondClient.ConnectAsync(
                 IPAddress.Loopback,
@@ -440,6 +572,8 @@ public sealed class TcpServerHostedServiceTests
     {
         public required string ListenAddress { get; init; }
 
+        public bool DualMode { get; init; }
+
         public required int Port { get; init; }
 
         public required int MaxConcurrentConnections { get; init; }
@@ -449,12 +583,51 @@ public sealed class TcpServerHostedServiceTests
         { get; init; }
     }
 
+    private sealed class LegacyOptions
+        : ITcpServerOptions
+    {
+        public required string ListenAddress { get; init; }
+
+        public required int Port { get; init; }
+
+        public required int MaxConcurrentConnections { get; init; }
+
+        public required ConnectionLimitBehavior ConnectionLimitBehavior
+        { get; init; }
+    }
+
     private sealed class ConnectionProbe
     {
         public TaskCompletionSource<ObservedConnection> Accepted
         { get; } =
             new(
                 TaskCreationOptions.RunContinuationsAsynchronously);
+    }
+
+    private sealed class MultipleConnectionProbe(
+        int expectedConnections)
+    {
+        private readonly object _sync = new();
+        private readonly List<AddressFamily> _addressFamilies = [];
+
+        public TaskCompletionSource<AddressFamily[]> AllAccepted
+        { get; } =
+            new(
+                TaskCreationOptions.RunContinuationsAsynchronously);
+
+        public void Record(
+            AddressFamily addressFamily)
+        {
+            lock (_sync)
+            {
+                _addressFamilies.Add(addressFamily);
+
+                if (_addressFamilies.Count == expectedConnections)
+                {
+                    AllAccepted.TrySetResult(_addressFamilies.ToArray());
+                }
+            }
+        }
     }
 
     private sealed record ObservedConnection(
@@ -484,6 +657,23 @@ public sealed class TcpServerHostedServiceTests
                     localEndpoint,
                     remoteEndpoint,
                     context.Stream.CanRead));
+
+            return ValueTask.CompletedTask;
+        }
+    }
+
+    private sealed class MultipleConnectionRecordingHandler(
+        MultipleConnectionProbe probe)
+        : ITcpConnectionHandler
+    {
+        public ValueTask HandleAsync(
+            TcpConnectionContext context,
+            CancellationToken cancellationToken)
+        {
+            IPEndPoint localEndpoint =
+                Assert.IsType<IPEndPoint>(context.LocalEndPoint);
+
+            probe.Record(localEndpoint.AddressFamily);
 
             return ValueTask.CompletedTask;
         }

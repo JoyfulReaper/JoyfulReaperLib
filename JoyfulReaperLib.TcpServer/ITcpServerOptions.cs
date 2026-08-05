@@ -17,6 +17,15 @@ public interface ITcpServerOptions
     string ListenAddress { get; }
 
     /// <summary>
+    /// Gets whether an IPv6 wildcard listener accepts IPv4-mapped connections.
+    /// <see langword="false"/> preserves a single-address-family listener, while
+    /// <see langword="true"/> enables dual-stack operation when
+    /// <see cref="ListenAddress"/> resolves to the IPv6 wildcard address
+    /// <c>::</c>.
+    /// </summary>
+    bool DualMode => false;
+
+    /// <summary>
     /// Gets the TCP port on which the server listens.
     /// </summary>
     int Port { get; }
