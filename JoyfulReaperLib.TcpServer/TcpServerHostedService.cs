@@ -69,20 +69,39 @@ public sealed class TcpServerHostedService<
         cancellationToken.ThrowIfCancellationRequested();
 
         IPAddress listenAddress = IPAddressUtils.ParseListenAddress(_options.ListenAddress);
+
+        if (_options.DualMode && !listenAddress.Equals(IPAddress.IPv6Any))
+        {
+            throw new InvalidOperationException(
+                "TCP dual mode requires ListenAddress to be the IPv6 wildcard address '::'.");
+        }
+
+        if (listenAddress.AddressFamily is AddressFamily.InterNetworkV6 &&
+            !Socket.OSSupportsIPv6)
+        {
+            throw new PlatformNotSupportedException(
+                "The operating system does not support IPv6 TCP listeners.");
+        }
+
         var listener = new TcpListener(listenAddress, _options.Port);
 
         try
         {
+            if (listenAddress.AddressFamily is AddressFamily.InterNetworkV6)
+            {
+                listener.Server.DualMode = _options.DualMode;
+            }
+
             listener.Start();
 
             _listener = listener;
             BoundEndpoint = (IPEndPoint)listener.LocalEndpoint;
 
             _logger.LogInformation(
-                "TCP server for {HandlerType} started on {Address}:{Port}.",
+                "TCP server for {HandlerType} started on {Endpoint} (dual mode: {DualMode}).",
                 typeof(THandler).Name,
-                BoundEndpoint.Address,
-                BoundEndpoint.Port);
+                BoundEndpoint,
+                _options.DualMode);
 
             await base.StartAsync(cancellationToken);
         }

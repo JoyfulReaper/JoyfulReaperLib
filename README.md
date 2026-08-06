@@ -291,6 +291,7 @@ using JoyfulReaperLib.TcpServer;
 public sealed class EchoServerOptions : ITcpServerOptions
 {
     public string ListenAddress { get; init; } = "127.0.0.1";
+    public bool DualMode { get; init; } = false;
     public int Port { get; init; } = 7000;
     public int MaxConcurrentConnections { get; init; } = 20;
     public ConnectionLimitBehavior ConnectionLimitBehavior { get; init; } =
@@ -329,6 +330,14 @@ builder.Services.AddTcpServer<EchoConnectionHandler, EchoServerOptions>();
 ```
 
 Set `ConnectionLimitBehavior` to `Wait` to delay accepting another connection until capacity is available, or `Reject` to accept and immediately close excess connections.
+
+Listener address-family configurations are:
+
+- IPv4 only: `ListenAddress = "0.0.0.0"`, `DualMode = false`
+- IPv6 only: `ListenAddress = "::"`, `DualMode = false`
+- IPv4 and IPv6: `ListenAddress = "::"`, `DualMode = true`
+
+Dual mode uses one IPv6 socket and accepts IPv4 clients as IPv4-mapped IPv6 connections. It is only valid with the IPv6 wildcard address `::`.
 
 ## JoyfulReaperLib.MissionControl
 
