@@ -101,10 +101,18 @@ public class SqliteDistributedCacheTests
     }
 
     [TestMethod]
-    public void ProviderInitialization_CanBeCalledMultipleTimes()
+    public async Task ProviderInitialization_CanBeCalledConcurrently()
     {
-        SqliteProviderInitializer.Initialize();
-        SqliteProviderInitializer.Initialize();
+        var initializationTasks = Enumerable.Range(0, 32)
+            .Select(_ => Task.Run(() =>
+            {
+                SqliteProviderInitializer.Initialize();
+
+                using var connection = new SqliteConnection("Data Source=:memory:");
+                connection.Open();
+            }));
+
+        await Task.WhenAll(initializationTasks);
     }
 
     [TestMethod]

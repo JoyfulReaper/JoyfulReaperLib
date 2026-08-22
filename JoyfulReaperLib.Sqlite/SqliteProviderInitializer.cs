@@ -27,15 +27,20 @@ namespace JoyfulReaperLib.Sqlite;
 
 public static class SqliteProviderInitializer
 {
-    private static int _initialized;
+    private static readonly object InitializationLock = new();
+    private static bool _initialized;
 
     public static void Initialize()
     {
-        if (Interlocked.Exchange(ref _initialized, 1) == 1)
+        lock (InitializationLock)
         {
-            return;
-        }
+            if (_initialized)
+            {
+                return;
+            }
 
-        SQLitePCL.raw.SetProvider(new SQLitePCL.SQLite3Provider_e_sqlite3());
+            SQLitePCL.raw.SetProvider(new SQLitePCL.SQLite3Provider_e_sqlite3());
+            _initialized = true;
+        }
     }
 }
