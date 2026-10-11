@@ -1,0 +1,15 @@
+<Project>
+  <PropertyGroup>
+    <Authors>Kyle Givler</Authors>
+    <Copyright>Copyright 2022-2026 Kyle Givler</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/JoyfulReaper/JoyfulReaperLib</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/JoyfulReaper/JoyfulReaperLib.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>joyfulreaper;utilities;dotnet</PackageTags>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+</Project>
