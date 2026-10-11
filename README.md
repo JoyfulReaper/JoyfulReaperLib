@@ -2,26 +2,37 @@
 
 A collection of lightweight .NET helpers and optional packages for SQLite storage, web statistics, hosted TCP servers, Mission Control events, and ntfy notifications.
 
-> [!IMPORTANT]
-> These packages are not currently published to NuGet.org. The package names below identify the projects and their intended package IDs, but `dotnet add package` will not install them from the public NuGet feed yet.
-
 ## Packages
 
 | Package | Description |
 | --- | --- |
-| `JoyfulReaperLib` | Shared helpers for text, numbers, collections, serialization, validation, encryption, console output, and other common tasks. |
-| `JoyfulReaperLib.Sqlite` | Shared SQLite provider initialization, database initialization, and connection-string path handling. |
-| `JoyfulReaperLib.Caching.Sqlite` | A SQLite-backed implementation of `IDistributedCache`. |
-| `JoyfulReaperLib.WebStats.Sqlite` | SQLite-backed hit counting and unique-visitor statistics. |
-| `JoyfulReaperLib.TcpServer` | Generic Host infrastructure for bounded, dependency-injected TCP servers. |
-| `JoyfulReaperLib.MissionControl` | A best-effort HTTP client for publishing application events to Mission Control. |
-| `JoyfulReaperLib.Ntfy` | An HTTP client for publishing notifications to hosted or self-hosted ntfy servers. |
+| [JoyfulReaperLib](https://www.nuget.org/packages/JoyfulReaperLib) | Shared helpers for text, numbers, collections, serialization, validation, encryption, console output, and other common tasks. |
+| [JoyfulReaperLib.Sqlite](https://www.nuget.org/packages/JoyfulReaperLib.Sqlite) | Shared SQLite provider initialization, database initialization, and connection-string path handling. |
+| [JoyfulReaperLib.Caching.Sqlite](https://www.nuget.org/packages/JoyfulReaperLib.Caching.Sqlite) | A SQLite-backed implementation of `IDistributedCache`. |
+| [JoyfulReaperLib.WebStats.Sqlite](https://www.nuget.org/packages/JoyfulReaperLib.WebStats.Sqlite) | SQLite-backed hit counting and unique-visitor statistics. |
+| [JoyfulReaperLib.TcpServer](https://www.nuget.org/packages/JoyfulReaperLib.TcpServer) | Generic Host infrastructure for bounded, dependency-injected TCP servers. |
+| [JoyfulReaperLib.MissionControl](https://www.nuget.org/packages/JoyfulReaperLib.MissionControl) | A best-effort HTTP client for publishing application events to Mission Control. |
+| [JoyfulReaperLib.Ntfy](https://www.nuget.org/packages/JoyfulReaperLib.Ntfy) | An HTTP client for publishing notifications to hosted or self-hosted ntfy servers. |
 
 `JoyfulReaperLib` is the lightweight base package. SQLite features, TCP server hosting, Mission Control integration, and ntfy support live in separate optional packages so applications only take the dependencies they need.
 
+## Installation
+
+All seven packages are available on NuGet.org. From your application's project directory, install only the packages you need:
+
+```bash
+dotnet add package JoyfulReaperLib
+dotnet add package JoyfulReaperLib.Sqlite
+dotnet add package JoyfulReaperLib.Caching.Sqlite
+dotnet add package JoyfulReaperLib.WebStats.Sqlite
+dotnet add package JoyfulReaperLib.TcpServer
+dotnet add package JoyfulReaperLib.MissionControl
+dotnet add package JoyfulReaperLib.Ntfy
+```
+
 ## Using the projects locally
 
-Clone this repository and add project references from your application to the projects it uses. Replace `path/to/YourApp.csproj` with your application's project path:
+For local development or direct source usage, clone this repository and add project references from your application to the projects it uses. For normal installation, use the NuGet packages above. Replace `path/to/YourApp.csproj` with your application's project path:
 
 ```bash
 dotnet add path/to/YourApp.csproj reference JoyfulReaperLib/JoyfulReaperLib.csproj
