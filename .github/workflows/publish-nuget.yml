@@ -35,25 +35,39 @@ jobs:
           set -euo pipefail
 
           dotnet pack JoyfulReaperLib/JoyfulReaperLib.csproj \
-            -c Release --no-restore -o ./artifacts/packages
+            -c Release --no-restore \
+            -p:GeneratePackageOnBuild=false \
+            -o ./artifacts/packages
 
           dotnet pack JoyfulReaperLib.Sqlite/JoyfulReaperLib.Sqlite.csproj \
-            -c Release --no-restore -o ./artifacts/packages
+            -c Release --no-restore \
+            -p:GeneratePackageOnBuild=false \
+            -o ./artifacts/packages
 
           dotnet pack JoyfulReaperLib.Caching.Sqlite/JoyfulReaperLib.Caching.Sqlite.csproj \
-            -c Release --no-restore -o ./artifacts/packages
+            -c Release --no-restore \
+            -p:GeneratePackageOnBuild=false \
+            -o ./artifacts/packages
 
           dotnet pack JoyfulReaperLib.WebStats.Sqlite/JoyfulReaperLib.WebStats.Sqlite.csproj \
-            -c Release --no-restore -o ./artifacts/packages
+            -c Release --no-restore \
+            -p:GeneratePackageOnBuild=false \
+            -o ./artifacts/packages
 
           dotnet pack JoyfulReaperLib.MissionControl/JoyfulReaperLib.MissionControl.csproj \
-            -c Release --no-restore -o ./artifacts/packages
+            -c Release --no-restore \
+            -p:GeneratePackageOnBuild=false \
+            -o ./artifacts/packages
 
           dotnet pack JoyfulReaperLib.Ntfy/JoyfulReaperLib.Ntfy.csproj \
-            -c Release --no-restore -o ./artifacts/packages
+            -c Release --no-restore \
+            -p:GeneratePackageOnBuild=false \
+            -o ./artifacts/packages
 
           dotnet pack JoyfulReaperLib.TcpServer/JoyfulReaperLib.TcpServer.csproj \
-            -c Release --no-restore -o ./artifacts/packages
+            -c Release --no-restore \
+            -p:GeneratePackageOnBuild=false \
+            -o ./artifacts/packages
 
       - name: NuGet login
         id: login
