@@ -1,0 +1,70 @@
+name: Publish NuGet packages
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore JoyfulReaperLibrary.sln
+
+      - name: Test
+        run: dotnet test JoyfulReaperLibrary.sln -c Release --no-restore
+
+      - name: Pack
+        run: dotnet pack JoyfulReaperLibrary.sln -c Release --no-restore -o ./artifacts/packages
+
+      - name: NuGet login
+        id: login
+        uses: NuGet/login@v1
+        with:
+          user: JoyfulReaper
+
+      - name: Push packages
+        shell: bash
+        run: |
+          dotnet nuget push "./artifacts/packages/JoyfulReaperLib.0.0.12.nupkg" \
+            --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" \
+            --source "https://api.nuget.org/v3/index.json"
+
+          dotnet nuget push "./artifacts/packages/JoyfulReaperLib.Sqlite.0.0.10.nupkg" \
+            --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" \
+            --source "https://api.nuget.org/v3/index.json"
+
+          dotnet nuget push "./artifacts/packages/JoyfulReaperLib.Caching.Sqlite.0.0.10.nupkg" \
+            --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" \
+            --source "https://api.nuget.org/v3/index.json"
+
+          dotnet nuget push "./artifacts/packages/JoyfulReaperLib.WebStats.Sqlite.0.0.10.nupkg" \
+            --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" \
+            --source "https://api.nuget.org/v3/index.json"
+
+          dotnet nuget push "./artifacts/packages/JoyfulReaperLib.MissionControl.0.0.3.nupkg" \
+            --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" \
+            --source "https://api.nuget.org/v3/index.json"
+
+          dotnet nuget push "./artifacts/packages/JoyfulReaperLib.Ntfy.0.0.1.nupkg" \
+            --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" \
+            --source "https://api.nuget.org/v3/index.json"
+
+          dotnet nuget push "./artifacts/packages/JoyfulReaperLib.TcpServer.0.0.5.nupkg" \
+            --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" \
+            --source "https://api.nuget.org/v3/index.json"
