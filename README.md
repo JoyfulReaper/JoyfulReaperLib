@@ -43,7 +43,7 @@ The base package contains dependency-free utility APIs, including:
 - numeric helpers, base conversion, Fibonacci sequences, and Luhn validation;
 - random item selection for arrays and lists;
 - JSON byte-array serialization;
-- URL and IP address validation;
+- URL and IP address validation and ingress-network classification;
 - currency, enum, console, Caesar cipher, and Vigenere cipher helpers.
 
 ### Text helpers
@@ -125,7 +125,7 @@ Dictionary<string, int>? restored =
 
 Null values serialize to `null`, and null or empty byte arrays deserialize to the default value for the requested type.
 
-### URL and listen-address validation
+### Networking helpers
 
 ```csharp
 using System.Net;
@@ -138,6 +138,26 @@ IPAddress loopback = IPAddressUtils.ParseListenAddress("127.0.0.1");
 ```
 
 `ParseListenAddress` maps `*`, `+`, and `0.0.0.0` to `IPAddress.Any`, and maps `::` to `IPAddress.IPv6Any`.
+
+`IngressNetworkClassifier` returns `"public"`, `"dn42"`, `"i2p"`, `"yggdrasil"`, or `"unknown"` from a hostname. DN42 and I2P are recognized automatically; applications supply their public and Yggdrasil rules:
+
+```csharp
+using JoyfulReaperLib.JRNet;
+
+var network = IngressNetworkClassifier.FromHost(
+    "api.ygg.kgivler.com",
+    publicHosts: ["status.example.net"],
+    publicHostSuffixes: ["kgivler.com"],
+    yggdrasilHostSuffixes: ["ygg.kgivler.com"]);
+// network == "yggdrasil"
+
+var i2pNetwork = IngressNetworkClassifier.FromHost("example.i2p");
+// i2pNetwork == "i2p" (no configuration needed)
+```
+
+Matching ignores case, surrounding whitespace, and trailing DNS dots in both hostnames and rules. Exact public rules match only the named host. Configured suffixes match the domain itself and its subdomains at DNS-label boundaries: `kgivler.com` matches `api.kgivler.com`, but not `notkgivler.com`. An optional leading dot on a suffix has the same meaning and still includes the root domain.
+
+The built-in `*.dn42` and `*.i2p` rules run first (bare `dn42` and `i2p` do not match), followed by configured Yggdrasil rules, then public rules. Built-in network suffixes take precedence even over overlapping public or Yggdrasil rules. Unmatched, null, or blank hostnames return `"unknown"`; omitted collections and null, blank, or dot-only rule entries are ignored. Pass hostname strings without schemes, ports, or paths. This helper performs no DNS lookup or network verification.
 
 ### Currency helpers
 

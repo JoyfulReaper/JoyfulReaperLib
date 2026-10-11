@@ -5,18 +5,13 @@
 	<ImplicitUsings>enable</ImplicitUsings>
 	<Nullable>enable</Nullable>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Copyright>Copyright 2022-2026 Kyle Givler</Copyright>
-    <PackageProjectUrl>https://github.com/JoyfulReaper</PackageProjectUrl>
 	<PackageId>JoyfulReaperLib</PackageId>
-	<Version>0.0.11</Version>
-	<Authors>Kyle Givler</Authors>
+	<Version>0.0.12</Version>
 	<Description>Lightweight shared utility helpers.</Description>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
     <InternalsVisibleTo Include="JoyfulReaperLib.Tests" />
-    <None Include="..\\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>
