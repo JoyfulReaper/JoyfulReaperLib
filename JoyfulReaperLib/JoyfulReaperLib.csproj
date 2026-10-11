@@ -8,12 +8,10 @@
 	<PackageId>JoyfulReaperLib</PackageId>
 	<Version>0.0.12</Version>
 	<Description>Lightweight shared utility helpers.</Description>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
     <InternalsVisibleTo Include="JoyfulReaperLib.Tests" />
-    <None Include="..\\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>
