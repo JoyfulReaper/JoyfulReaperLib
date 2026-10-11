@@ -43,28 +43,35 @@ jobs:
         run: |
           dotnet nuget push "./artifacts/packages/JoyfulReaperLib.0.0.12.nupkg" \
             --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" \
-            --source "https://api.nuget.org/v3/index.json"
+            --source "https://api.nuget.org/v3/index.json" \
+            --skip-duplicate
 
           dotnet nuget push "./artifacts/packages/JoyfulReaperLib.Sqlite.0.0.10.nupkg" \
             --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" \
-            --source "https://api.nuget.org/v3/index.json"
+            --source "https://api.nuget.org/v3/index.json" \
+            --skip-duplicate
 
           dotnet nuget push "./artifacts/packages/JoyfulReaperLib.Caching.Sqlite.0.0.10.nupkg" \
             --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" \
-            --source "https://api.nuget.org/v3/index.json"
+            --source "https://api.nuget.org/v3/index.json" \
+            --skip-duplicate
 
           dotnet nuget push "./artifacts/packages/JoyfulReaperLib.WebStats.Sqlite.0.0.10.nupkg" \
             --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" \
-            --source "https://api.nuget.org/v3/index.json"
+            --source "https://api.nuget.org/v3/index.json" \
+            --skip-duplicate
 
           dotnet nuget push "./artifacts/packages/JoyfulReaperLib.MissionControl.0.0.3.nupkg" \
             --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" \
-            --source "https://api.nuget.org/v3/index.json"
+            --source "https://api.nuget.org/v3/index.json" \
+            --skip-duplicate
 
           dotnet nuget push "./artifacts/packages/JoyfulReaperLib.Ntfy.0.0.1.nupkg" \
             --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" \
-            --source "https://api.nuget.org/v3/index.json"
+            --source "https://api.nuget.org/v3/index.json" \
+            --skip-duplicate
 
           dotnet nuget push "./artifacts/packages/JoyfulReaperLib.TcpServer.0.0.5.nupkg" \
             --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" \
-            --source "https://api.nuget.org/v3/index.json"
+            --source "https://api.nuget.org/v3/index.json" \
+            --skip-duplicate
